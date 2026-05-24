@@ -1,0 +1,547 @@
+/* ============================================================
+   Sequential Circuit Simulator Lab - Enhanced Styles
+   ============================================================ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ─── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-cyan: #06b6d4;
+  --color-green: #22c55e;
+  --color-red: #ef4444;
+  --color-purple: #a855f7;
+  --color-amber: #f59e0b;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono    { font-family: var(--font-mono); }
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(15,23,42,0.05); }
+.dark ::-webkit-scrollbar-track { background: rgba(15,23,42,0.6); }
+::-webkit-scrollbar-thumb { background: rgba(156,163,175,0.5); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(156,163,175,0.8); }
+
+/* ─── Neon Box Glows ────────────────────────────────────────── */
+.glow-green  { box-shadow: 0 0 8px rgba(34,197,94,0.5), 0 0 20px rgba(34,197,94,0.2); }
+.glow-blue   { box-shadow: 0 0 8px rgba(59,130,246,0.5), 0 0 20px rgba(59,130,246,0.2); }
+.glow-red    { box-shadow: 0 0 8px rgba(239,68,68,0.5),  0 0 20px rgba(239,68,68,0.2); }
+.glow-yellow { box-shadow: 0 0 8px rgba(234,179,8,0.5),  0 0 20px rgba(234,179,8,0.2); }
+.glow-purple { box-shadow: 0 0 8px rgba(168,85,247,0.5), 0 0 20px rgba(168,85,247,0.2); }
+.glow-cyan   { box-shadow: 0 0 8px rgba(6,182,212,0.5),  0 0 20px rgba(6,182,212,0.2); }
+.glow-amber  { box-shadow: 0 0 8px rgba(245,158,11,0.5), 0 0 20px rgba(245,158,11,0.2); }
+
+/* ─── Neon Text Glows ───────────────────────────────────────── */
+.text-glow-green { text-shadow: 0 0 10px rgba(34,197,94,0.6); }
+.text-glow-cyan  { text-shadow: 0 0 10px rgba(6,182,212,0.7); }
+.text-glow-red   { text-shadow: 0 0 10px rgba(239,68,68,0.6); }
+
+/* ─── Gate Background Canvas ────────────────────────────────── */
+#gate-canvas {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; opacity: 0.12;
+}
+.dark #gate-canvas { opacity: 0.22; }
+
+/* ─── Hover Cards ───────────────────────────────────────────── */
+.hover-card {
+  transition: var(--transition-smooth);
+}
+.hover-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px -12px rgba(0,0,0,0.15);
+}
+.dark .hover-card:hover {
+  box-shadow: 0 16px 32px -12px rgba(6,182,212,0.3);
+}
+
+/* ─── Flip-Flop 3D Card ─────────────────────────────────────── */
+.perspective-container { perspective: 1200px; }
+.flip-flop-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.flip-flop-card-3d:hover {
+  transform: rotateY(12deg) rotateX(6deg);
+}
+
+/* ─── Animations ─────────────────────────────────────────────── */
+
+/* Signal flow in SVG */
+@keyframes signalFlow {
+  0%   { stroke-dashoffset: 20; }
+  100% { stroke-dashoffset: 0; }
+}
+.signal-active {
+  stroke-dasharray: 6, 4;
+  animation: signalFlow 0.8s linear infinite;
+}
+
+/* Radial LED pulse */
+@keyframes radialPulse {
+  0%, 100% { transform: scale(0.94); box-shadow: 0 0 6px rgba(6,182,212,0.3); }
+  50%       { transform: scale(1.08); box-shadow: 0 0 22px rgba(6,182,212,0.8); }
+}
+.radial-pulse { animation: radialPulse 1.4s ease-in-out infinite; }
+
+/* Green pulse (HIGH state LEDs) */
+@keyframes greenPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  50%       { box-shadow: 0 0 24px rgba(34,197,94,0.9); }
+}
+.green-pulse { animation: greenPulse 1.2s ease-in-out infinite; }
+
+/* Clock tick flash */
+@keyframes clkFlash {
+  0%   { opacity: 1; box-shadow: 0 0 20px rgba(6,182,212,1); }
+  100% { opacity: 0.6; box-shadow: 0 0 4px rgba(6,182,212,0.3); }
+}
+.clk-flash { animation: clkFlash 0.15s ease-out forwards; }
+
+/* Bit shift animation */
+@keyframes bitShift {
+  0%   { transform: translateX(-8px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.bit-shift { animation: bitShift 0.2s ease-out; }
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.4s ease-out; }
+
+/* ─── Truth Table & State Table ─────────────────────────────── */
+.truth-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-mono);
+}
+.truth-table th {
+  background: rgba(6,182,212,0.15);
+  color: var(--color-cyan);
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(6,182,212,0.2);
+  letter-spacing: 0.05em;
+}
+.truth-table td {
+  text-align: center;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  border: 1px solid rgba(100,116,139,0.2);
+  transition: background 0.2s;
+}
+.truth-table tr:nth-child(even) td {
+  background: rgba(15,23,42,0.04);
+}
+.dark .truth-table tr:nth-child(even) td {
+  background: rgba(255,255,255,0.03);
+}
+.truth-table tr.row-active td {
+  background: rgba(6,182,212,0.12) !important;
+  font-weight: 700;
+  border-color: rgba(6,182,212,0.4);
+}
+.truth-table tr:hover td {
+  background: rgba(6,182,212,0.07);
+}
+.bit-one { color: #22c55e; font-weight: 700; }
+.dark .bit-one { color: #4ade80; }
+.bit-zero { color: #94a3b8; }
+.dark .bit-zero { color: #64748b; }
+
+/* ─── Timing Diagram Canvas ─────────────────────────────────── */
+.waveform-container {
+  background: #0b0f19;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ─── LED elements ───────────────────────────────────────────── */
+.led-on {
+  background: #22c55e;
+  border-color: #4ade80 !important;
+  animation: greenPulse 1.2s ease-in-out infinite;
+}
+.dark .led-on {
+  background: #22c55e;
+  border-color: #4ade80 !important;
+}
+.led-on-amber {
+  background: #f59e0b;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 12px rgba(245,158,11,0.8);
+}
+.led-off {
+  background: #e2e8f0;
+  border-color: #cbd5e1 !important;
+}
+.dark .led-off {
+  background: #1e293b;
+  border-color: #334155 !important;
+}
+
+/* ─── Step Narrator Log ─────────────────────────────────────── */
+.narrator-log-entry {
+  border-left: 2px solid var(--color-cyan);
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: #475569;
+  background: rgba(6,182,212,0.04);
+  border-radius: 0 4px 4px 0;
+  animation: fadeIn 0.3s ease;
+}
+.dark .narrator-log-entry { color: #94a3b8; }
+
+/* ─── Info Box ─────────────────────────────────────────────── */
+.info-box {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  border-left: 3px solid;
+}
+.info-box.info  { border-color: var(--color-cyan);   background: rgba(6,182,212,0.07); }
+.info-box.warn  { border-color: var(--color-amber);  background: rgba(245,158,11,0.07); }
+.info-box.tip   { border-color: var(--color-green);  background: rgba(34,197,94,0.07); }
+.info-box.key   { border-color: var(--color-purple); background: rgba(168,85,247,0.07); }
+
+/* ─── Virtual Lab Grid ───────────────────────────────────────── */
+.lab-grid {
+  background-size: 24px 24px;
+  background-image:
+    radial-gradient(circle, rgba(148,163,184,0.08) 1px, transparent 1px);
+}
+.dark .lab-grid {
+  background-image:
+    radial-gradient(circle, rgba(51,65,85,0.35) 1px, transparent 1px);
+}
+
+/* ─── Pin Connection Hover ───────────────────────────────────── */
+.pin-connectable { transition: transform 0.15s ease; }
+.pin-connectable:hover {
+  transform: scale(1.5);
+  cursor: crosshair;
+}
+
+/* ─── Active State Row (tables) ───────────────────────────────── */
+.state-row-active {
+  background: rgba(6,182,212,0.12) !important;
+  font-weight: 700;
+  border-left: 3px solid var(--color-cyan);
+}
+
+/* ─── Tab Panel ──────────────────────────────────────────────── */
+.tab-btn {
+  padding: 8px 16px;
+  border-radius: 8px 8px 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+.tab-btn.active {
+  background: white;
+  border-color: rgba(100,116,139,0.2);
+  color: var(--color-cyan);
+}
+.dark .tab-btn.active {
+  background: #0f172a;
+  border-color: rgba(100,116,139,0.2);
+  color: var(--color-cyan);
+}
+.tab-btn:not(.active) {
+  color: #64748b;
+  background: transparent;
+}
+.tab-btn:not(.active):hover { color: var(--color-cyan); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+/* ─── App View Transitions ───────────────────────────────────── */
+.app-view { animation: fadeIn 0.35s ease; }
+
+/* ─── Concept Badge ───────────────────────────────────────────── */
+.concept-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Digit Seven-Segment (faux style for counter display) ────── */
+.seg-display {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+/* ─── Mobile Responsive Helpers ─────────────────────────────── */
+@media (max-width: 640px) {
+  .truth-table th, .truth-table td { padding: 4px 6px; font-size: 0.65rem; }
+  .tab-btn { padding: 6px 10px; font-size: 0.7rem; }
+}
+
+/* ─── Section Header Accent ─────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.section-header::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 24px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, var(--color-cyan), var(--color-purple));
+  flex-shrink: 0;
+}
+
+/* ─── Tooltip Styling ────────────────────────────────────────── */
+[data-tooltip] { position: relative; cursor: help; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%; transform: translateX(-50%);
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.7rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 100;
+  border: 1px solid #1e293b;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
+}
+[data-tooltip]:hover::after { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════
+   FULL-WINDOW & RESPONSIVE LAYOUT SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Ensure everything fills the screen width */
+html, body {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ─── Responsive Typography ─────────────────────────────────── */
+h1 { font-size: clamp(1.8rem, 5vw, 4rem); }
+h2 { font-size: clamp(1.4rem, 3.5vw, 2.25rem); }
+h3 { font-size: clamp(1rem, 2.5vw, 1.5rem); }
+
+/* ─── Hero Section fills full width ─────────────────────────── */
+#home .hero-section,
+section.hero-section {
+  width: 100%;
+}
+
+/* ─── Simulator panels stretch to fill container ─────────────── */
+.sim-panel {
+  width: 100%;
+  min-width: 0; /* prevent flex/grid overflow */
+}
+
+/* ─── Waveform canvas always 100% width of its container ─────── */
+canvas#sr-waveform,
+canvas#counter-waveform {
+  width: 100% !important;
+  min-width: 0;
+}
+
+/* ─── Virtual Lab canvas adapts to viewport ─────────────────── */
+#lab-playground {
+  height: clamp(350px, 60vh, 700px);
+  width: 100%;
+}
+
+/* ─── Flip-flop grid stays row on wide screens ───────────────── */
+.ff-row {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 480px)  { .ff-row { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px)  { .ff-row { grid-template-columns: repeat(4, 1fr); } }
+
+/* ─── Truth tables — always scroll horizontally on small screens */
+.overflow-x-auto { -webkit-overflow-scrolling: touch; }
+.truth-table { min-width: 340px; }
+
+/* ─── Info boxes stack on mobile ─────────────────────────────── */
+@media (max-width: 640px) {
+  .info-box { font-size: 0.75rem; padding: 10px 12px; }
+  .concept-badge { font-size: 0.65rem; padding: 2px 8px; }
+}
+
+/* ─── Hero Section — responsive padding ─────────────────────── */
+@media (max-width: 640px) {
+  section.rounded-3xl { border-radius: 1rem; padding: 1.5rem 1rem; }
+  .hero-btns { flex-direction: column; gap: 0.75rem; }
+  .hero-btns button { width: 100%; }
+}
+
+/* ─── Navigation — show full nav labels on lg+ ───────────────── */
+@media (max-width: 1024px) {
+  nav.hidden.lg\\:flex { display: none; }
+}
+
+/* ─── Mobile drawer gets full-screen treatment ────────────────── */
+@media (max-width: 640px) {
+  #mobile-drawer > div {
+    left: 0.5rem;
+    right: 0.5rem;
+    top: 4rem;
+  }
+}
+
+/* ─── Simulator grid: 3-col on large, stack on small ─────────── */
+.sim-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .sim-grid-3 { grid-template-columns: 2fr 1fr; }
+}
+
+/* ─── Control panel buttons — touch-friendly ─────────────────── */
+button {
+  min-height: 36px;
+  touch-action: manipulation;
+}
+@media (max-width: 640px) {
+  button { min-height: 44px; font-size: 0.8rem; }
+  select { min-height: 44px; font-size: 0.85rem; }
+  input[type="range"] { height: 28px; }
+}
+
+/* ─── LED indicators scale on mobile ─────────────────────────── */
+@media (max-width: 480px) {
+  .w-16.h-16 { width: 3rem; height: 3rem; font-size: 0.9rem; }
+  .w-10.h-10 { width: 2.2rem; height: 2.2rem; }
+}
+
+/* ─── Ring counter circular display: scale on mobile ─────────── */
+@media (max-width: 480px) {
+  .w-80.h-80 { width: 15rem; height: 15rem; }
+  .w-56.h-56 { width: 10rem; height: 10rem; }
+}
+
+/* ─── State tables: compact on mobile ────────────────────────── */
+@media (max-width: 640px) {
+  .truth-table th,
+  .truth-table td {
+    padding: 4px 6px;
+    font-size: 0.6rem;
+  }
+}
+
+/* ─── Quiz option buttons — full-width on all screens ─────────── */
+#quiz-options-grid button {
+  width: 100%;
+  text-align: left;
+  min-height: 48px;
+}
+
+/* ─── Footer full-width ──────────────────────────────────────── */
+footer {
+  width: 100%;
+}
+
+/* ─── Code blocks — horizontal scroll on mobile ─────────────── */
+pre { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ─── About page code cards ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .bg-slate-950 pre { font-size: 0.6rem; }
+}
+
+/* ─── Large screen optimisations (≥ 1920px / 4K) ─────────────── */
+@media (min-width: 1920px) {
+  body { font-size: 1.05rem; }
+  .truth-table th, .truth-table td { padding: 10px 16px; font-size: 0.85rem; }
+  .info-box { font-size: 0.9rem; }
+}
+
+/* ─── App view transition animation ─────────────────────────── */
+.app-view:not(.hidden) {
+  animation: fadeIn 0.3s ease;
+}
+
+
+/* ─── Section Header Accent ─────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.section-header::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 24px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, var(--color-cyan), var(--color-purple));
+  flex-shrink: 0;
+}
+
+/* ─── Tooltip Styling ────────────────────────────────────────── */
+[data-tooltip] { position: relative; cursor: help; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%; transform: translateX(-50%);
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.7rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 100;
+  border: 1px solid #1e293b;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
+}
+[data-tooltip]:hover::after { opacity: 1; }
