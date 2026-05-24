@@ -132,7 +132,7 @@
             Sequential Circuit Simulator Lab
           </h1>
           <p class="text-lg sm:text-xl text-slate-600 dark:text-slate-300 font-sans leading-relaxed">
-            Master shift registers, asynchronous &amp; synchronous counters, ring &amp; Johnson counters with real-time interactive simulations.
+            Learn how computers store and move data — step by step, with live animations you can control yourself. No prior experience needed! 🎉
           </p>
           <div class="pt-4 hero-btns flex flex-wrap justify-center gap-4">
             <button id="btn-start-learning" class="py-3.5 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg hover:shadow-cyan-500/30 transition-all transform hover:-translate-y-0.5">
@@ -150,19 +150,19 @@
         <div class="space-y-4">
           <h2 class="text-2xl sm:text-3xl font-display font-bold">What are Sequential Circuits?</h2>
           <p class="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
-            Unlike combinational logic circuits whose output values depend solely on their current inputs (e.g., AND/OR gates), <strong>sequential circuits contain memory elements</strong>.
+            Imagine a <strong>traffic light</strong> — it doesn't just look at what you press. It also remembers what colour it showed last! That's exactly what a sequential circuit does — it <strong>remembers past events</strong> to decide what to do next.
           </p>
           <p class="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
-            Their output is determined by both the <strong>current inputs</strong> and the <strong>history of past inputs</strong>. This memory capability is achieved using basic storage units called <strong>Flip-Flops</strong> synchronized by a periodic clock signal.
+            The tiny memory units inside are called <strong>Flip-Flops</strong>. They store one bit (0 or 1) and update their value when a <strong>clock pulse</strong> (like a regular heartbeat signal) arrives.
           </p>
           <div class="grid grid-cols-2 gap-4 pt-2">
             <div class="p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-              <h4 class="font-bold font-mono text-cyan-500 text-sm">Synchronous</h4>
-              <p class="text-xs text-slate-500">State changes occur simultaneously triggered by a single shared system clock pulse.</p>
+              <h4 class="font-bold font-mono text-cyan-500 text-sm">⏱ Synchronous</h4>
+              <p class="text-xs text-slate-500">All parts update <em>at the same time</em> when the clock ticks. Like a marching band — everyone moves together.</p>
             </div>
             <div class="p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-              <h4 class="font-bold font-mono text-cyan-500 text-sm">Asynchronous</h4>
-              <p class="text-xs text-slate-500">State changes cascade consecutively without a centralized clock. Simple but slower.</p>
+              <h4 class="font-bold font-mono text-cyan-500 text-sm">⚡ Asynchronous</h4>
+              <p class="text-xs text-slate-500">Each part updates <em>one after another</em>, like a line of dominoes falling. Simpler, but a bit slower.</p>
             </div>
           </div>
         </div>
@@ -201,7 +201,7 @@
               </div>
               <h3 class="text-lg font-bold font-display">Shift Registers</h3>
               <p class="text-xs text-slate-500 leading-relaxed">
-                Learn SISO, SIPO, PISO, and PIPO. Discover how data is moved bit-by-bit inside storage elements.
+                Learn how computers move data one bit at a time — like passing a message along a line of people, one by one.
               </p>
             </div>
             <span class="text-xs font-semibold text-cyan-500 flex items-center">
@@ -217,7 +217,7 @@
               </div>
               <h3 class="text-lg font-bold font-display">Binary Counters</h3>
               <p class="text-xs text-slate-500 leading-relaxed">
-                Analyze asynchronous ripple counters vs synchronous timing paths. Customize MOD-N values.
+                Learn how circuits count from 0 upward — just like a scoreboard! See what happens when it resets to zero.
               </p>
             </div>
             <span class="text-xs font-semibold text-emerald-500 flex items-center">
@@ -233,7 +233,7 @@
               </div>
               <h3 class="text-lg font-bold font-display">Ring Counter</h3>
               <p class="text-xs text-slate-500 leading-relaxed">
-                Explore circular shift patterns where the final output is fed back directly. See its N unique states.
+                One glowing bit travels in a circle — like a baton being passed around a relay race track, forever.
               </p>
             </div>
             <span class="text-xs font-semibold text-amber-500 flex items-center">
@@ -249,7 +249,7 @@
               </div>
               <h3 class="text-lg font-bold font-display">Johnson Counter</h3>
               <p class="text-xs text-slate-500 leading-relaxed">
-                Discover the twisted feedback loop taking the inverted output back, producing 2N states.
+                Like the Ring Counter, but with a twist! It fills up with 1s, then empties out — giving double the states.
               </p>
             </div>
             <span class="text-xs font-semibold text-pink-500 flex items-center">
@@ -271,31 +271,31 @@
       <section class="space-y-6">
         <div>
           <h2 class="text-3xl font-display font-bold">Shift Registers</h2>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">A group of D Flip-Flops connected in series (cascade). Data moves one position per clock pulse.</p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">A chain of memory cells (Flip-Flops) connected one after another. Each clock tick moves every stored bit one step forward — like a conveyor belt! 🏭</p>
         </div>
 
         <!-- Key Concept Box -->
         <div class="info-box info text-sm">
-          <strong>🔑 Core Idea:</strong> Think of a shift register like a queue of people — on each "clock bell", everyone passes their item to the next person. The new item enters at the front (FF0), and the last person's item (FF3) exits or becomes available as output.
+          <strong>🔑 Easy Way to Remember:</strong> Think of 4 people standing in a line. Each person holds a number (0 or 1). When the teacher rings a bell (clock), every person passes their number to the person behind them. A new number joins at the front. The last person's number either exits or can be read — that's a shift register!
         </div>
 
         <!-- 4-Type Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-cyan-200 dark:border-cyan-900 space-y-2">
             <div class="flex items-center gap-2"><span class="concept-badge bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">SISO</span></div>
-            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>Serial-In Serial-Out.</strong> 1 input pin, 1 output pin. Data enters bit-by-bit at FF0 and exits bit-by-bit from FF3. Takes <strong>N clock pulses</strong> to shift an N-bit word completely through. Used as a time-delay element.</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>One-in, One-out.</strong> Data enters one bit at a time from one end and exits one bit at a time from the other end. Like whispering a message down a line of people — it comes out the other end one word at a time. 🗣️</p>
           </div>
           <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-emerald-200 dark:border-emerald-900 space-y-2">
             <div class="flex items-center gap-2"><span class="concept-badge bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">SIPO</span></div>
-            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>Serial-In Parallel-Out.</strong> 1 input pin, 4 output pins (Q0–Q3). After N clock pulses, all bits are visible at outputs simultaneously. Used to convert <strong>serial data → parallel data</strong> (e.g. UART receiver).</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>One-in, All-out.</strong> Data enters one bit at a time, but you can read ALL stored bits at once when you want. Like loading beads onto a necklace one by one — then showing the whole necklace at once. 📿</p>
           </div>
           <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-amber-200 dark:border-amber-900 space-y-2">
             <div class="flex items-center gap-2"><span class="concept-badge bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">PISO</span></div>
-            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>Parallel-In Serial-Out.</strong> 4 input pins (I0–I3), 1 output pin (Q3). All bits loaded at once in one clock, then shifted out one-by-one. Used to convert <strong>parallel data → serial data</strong> (e.g. SPI transmitter). Output order: I3 first, then I2, I1, I0.</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>All-in, One-out.</strong> You load all bits at the same time in one step, then they exit one by one. Like loading all your bags into a car at once, then taking them out one at a time. 🧳</p>
           </div>
           <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-pink-200 dark:border-pink-900 space-y-2">
             <div class="flex items-center gap-2"><span class="concept-badge bg-pink-100 dark:bg-pink-950 text-pink-600 dark:text-pink-400">PIPO</span></div>
-            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>Parallel-In Parallel-Out.</strong> 4 input pins, 4 output pins. In ONE clock pulse, all inputs are simultaneously transferred to all outputs. Acts as a <strong>temporary register / data buffer</strong>. Fastest type.</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"><strong>All-in, All-out.</strong> Everything loads in at once AND is available immediately. Like taking a group photo — everyone gets in position at the same time and the picture is taken instantly! 📸 This is the fastest type.</p>
           </div>
         </div>
 
@@ -559,34 +559,32 @@
       <section class="space-y-5">
         <div>
           <h2 class="text-3xl font-display font-bold">Binary Counters</h2>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Sequential circuits that cycle through a fixed sequence of binary states on each clock pulse. Built from JK or T Flip-Flops.</p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">A counter counts up (or down) in binary every time it gets a clock pulse — just like the score on a scoreboard! 🏆</p>
         </div>
 
         <div class="info-box info text-sm">
-          <strong>🔑 Core Idea:</strong> A counter is like a digital odometer. Each clock tick advances it by 1. When it reaches its maximum value (MOD-N limit), it resets to 0 and starts again. The binary outputs Q3 Q2 Q1 Q0 represent the current count in binary.
+          <strong>🔑 Easy Way to Remember:</strong> Think of a counter like the odometer in a car. Every time the wheel turns (clock pulse), the number goes up by 1. When it hits the maximum (like 9999), it resets back to 0000 and starts over. The 4 lights (Q3 Q2 Q1 Q0) show the current count in binary (1s and 0s).
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-white dark:bg-slate-900 border-2 border-cyan-200 dark:border-cyan-900 rounded-2xl p-5 space-y-2">
-            <h3 class="text-sm font-bold font-display text-cyan-500">⚡ Asynchronous (Ripple) Counter</h3>
+            <h3 class="text-sm font-bold font-display text-cyan-500">⚡ Asynchronous (Ripple) Counter — the simple one</h3>
             <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 list-disc list-inside leading-relaxed">
-              <li>Only <strong>FF0 receives the master clock</strong> directly</li>
-              <li>FF1 is clocked by Q0's output; FF2 by Q1; FF3 by Q2</li>
-              <li>State changes "<strong>ripple</strong>" through each stage one-by-one</li>
-              <li>Each FF adds a small propagation delay (~10–20ns)</li>
-              <li>Can produce <strong>glitches</strong> (momentary wrong values) during transitions</li>
-              <li>Simple circuit, fewer gates — good for low-speed applications</li>
+              <li>Only the <strong>first flip-flop</strong> gets the clock signal directly</li>
+              <li>The 2nd flip-flop waits for the 1st to finish, the 3rd waits for the 2nd, and so on — like a chain reaction</li>
+              <li>This creates a small delay at each step (called a <strong>ripple delay</strong>)</li>
+              <li>Imagine knocking dominoes — they fall one after the other, not all at once!</li>
+              <li>Simple to build, but the delay can cause tiny errors at very high speeds</li>
             </ul>
           </div>
           <div class="bg-white dark:bg-slate-900 border-2 border-emerald-200 dark:border-emerald-900 rounded-2xl p-5 space-y-2">
-            <h3 class="text-sm font-bold font-display text-emerald-500">🚀 Synchronous Counter</h3>
+            <h3 class="text-sm font-bold font-display text-emerald-500">🚀 Synchronous Counter — the fast one</h3>
             <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 list-disc list-inside leading-relaxed">
-              <li><strong>All flip-flops share the same clock line</strong> simultaneously</li>
-              <li>Every FF triggers at exactly the same rising clock edge</li>
-              <li>No ripple delay accumulation — all bits update simultaneously</li>
-              <li><strong>No glitches</strong> during transitions</li>
-              <li>Needs extra logic (AND gates for carry lookahead) but much faster</li>
-              <li>Used in CPUs, FPGAs, high-speed digital systems</li>
+              <li><strong>All flip-flops get the clock at the same time</strong></li>
+              <li>Every flip-flop updates simultaneously — like a marching band where everyone steps at once</li>
+              <li>No waiting, no delays — the count is always correct</li>
+              <li>Needs a few extra logic gates to control which flip-flops should change</li>
+              <li>Used in computers, phones, and anything that needs fast, reliable counting</li>
             </ul>
           </div>
         </div>
@@ -619,9 +617,9 @@
             </table>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
-            <div class="info-box tip"><strong>MOD-8:</strong> Uses only Q2 Q1 Q0 (3 bits). Counts 0→7 then resets.</div>
-            <div class="info-box warn"><strong>MOD-10 (BCD):</strong> Counts 0→9. At count 10 (1010), a NAND gate detects Q3·Q1=1 and forces CLEAR.</div>
-            <div class="info-box key"><strong>MOD-N:</strong> Any N is achievable by detecting state N with gates and connecting to the CLEAR pins.</div>
+            <div class="info-box tip"><strong>MOD-8 Counter:</strong> Counts from 0 to 7 (uses 3 bits). After 7, it resets to 0. Like a clock that only has 8 numbers!</div>
+            <div class="info-box warn"><strong>MOD-10 (Decade Counter):</strong> Counts 0 to 9, then resets. Used in digital clocks and calculators. When it hits 10, a special gate forces it back to 0.</div>
+            <div class="info-box key"><strong>MOD-N (Custom):</strong> You can make a counter reset at any number N you choose, by connecting a detection gate to the reset (CLEAR) pins.</div>
           </div>
         </div>
       </section>
@@ -806,25 +804,23 @@
       <section class="space-y-5">
         <div>
           <h2 class="text-3xl font-display font-bold">Ring Counter</h2>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">A circular shift register where the output of the last flip-flop feeds directly back into the input of the first.</p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">A special counter where one glowing "1" travels in a circle through 4 memory cells, over and over. 🔁</p>
         </div>
 
         <div class="info-box info text-sm">
-          <strong>🔑 Core Idea:</strong> Imagine 4 people in a circle passing a single ball. Only one person holds the ball at a time. On each clock pulse, the ball moves one step clockwise. That ball is the "1" bit — it circulates forever!
+          <strong>🔑 Easy Way to Remember:</strong> Imagine 4 friends sitting in a circle. Only ONE friend holds a glowing ball at a time. On each clock tick, the ball is passed to the next friend. When the last friend gets it, they pass it back to the first — and the cycle repeats forever!
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- How it works -->
           <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
-            <h3 class="text-sm font-bold font-display text-amber-500">How It Works</h3>
+            <h3 class="text-sm font-bold font-display text-amber-500">How It Works — Step by Step</h3>
             <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside leading-relaxed">
-              <li>Built from N D Flip-Flops connected in a ring (series)</li>
-              <li>Initialized with exactly <strong>one "1" bit</strong> (e.g. Q0=1, Q1=Q2=Q3=0)</li>
-              <li>Feedback: Q3 output connects directly to D0 input (no inversion)</li>
-              <li>On each rising clock edge, every flip-flop copies its left neighbour</li>
-              <li>The "1" rotates: Q0→Q1→Q2→Q3→Q0→... endlessly</li>
-              <li>4-stage ring counter has exactly <strong>4 unique states</strong> (= N states)</li>
-              <li>Acts as a divide-by-N frequency divider</li>
+              <li>4 memory cells (flip-flops) are connected in a loop</li>
+              <li>We start by putting a <strong>"1"</strong> in the first cell and <strong>"0"</strong> in all others: <code>1000</code></li>
+              <li>On each clock tick, every cell passes its value to the next cell on the right</li>
+              <li>The last cell passes its value back to the first cell (that's the "ring" part!)</li>
+              <li>The "1" keeps moving: <code>1000 → 0100 → 0010 → 0001 → 1000 → ...</code></li>
+              <li>It completes one full loop every <strong>4 clock ticks</strong> (= 4 states for 4 cells)</li>
             </ul>
           </div>
           <!-- State Table -->
@@ -851,13 +847,13 @@
 
         <!-- Warning about invalid states -->
         <div class="info-box warn text-xs">
-          <strong>⚠️ Important Limitation:</strong> A 4-bit ring counter has only 4 valid states out of 16 possible binary combinations. If the register powers up in an invalid state (like 0000, 0101, 1010...), it will get "stuck" circulating that invalid pattern forever. A <strong>preset/initialize circuit</strong> (SET pin on one FF, CLEAR on rest) is always required in real hardware.
+          <strong>⚠️ Watch out!</strong> If the ring counter is accidentally turned on with all zeros (<code>0000</code>) or any other wrong pattern, it will get stuck repeating that wrong pattern forever! That's why in real circuits, we always <strong>force a starting state</strong> (set one cell to 1, clear the rest) when the power is switched on.
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div class="info-box tip"><strong>✅ Advantages:</strong> Simple decoding — any state needs just 1 AND gate. Self-timing, no glitches.</div>
-          <div class="info-box warn"><strong>❌ Disadvantages:</strong> Wastes states — only N valid states from 2^N total. Needs initialization circuit.</div>
-          <div class="info-box key"><strong>🔧 Applications:</strong> Stepper motor control, sequential LED chasers, ring oscillators, CPU pipeline stage control.</div>
+          <div class="info-box tip"><strong>✅ Good things:</strong> Very easy to read — only ONE cell is ever "1" at a time, so you always know exactly which step you're on.</div>
+          <div class="info-box warn"><strong>❌ Downside:</strong> Wastes space — out of 16 possible patterns, only 4 are used. Needs a startup circuit.</div>
+          <div class="info-box key"><strong>🔧 Used in:</strong> Stepper motor controllers, LED chaser lights, traffic light sequencers, washing machine step timers.</div>
         </div>
       </section>
 
@@ -983,24 +979,25 @@
       <section class="space-y-5">
         <div>
           <h2 class="text-3xl font-display font-bold">Johnson Counter</h2>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Also called a <strong>Twisted Ring Counter</strong>. Feedback path uses the <em>inverted</em> (complemented) output Q3̄ instead of the true Q3.</p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Also called the <strong>Twisted Ring Counter</strong>. It's like the Ring Counter, but with one small twist — and that twist doubles the number of steps! 🔀</p>
         </div>
 
         <div class="info-box info text-sm">
-          <strong>🔑 Core Idea:</strong> Like the Ring Counter, but with a <em>twist</em>! Instead of the ball circulating, imagine a fill-and-drain cycle: first all 4 slots fill up with "1"s (one per clock), then all drain back to "0"s. This gives <strong>2N = 8 states</strong> from 4 flip-flops — double that of a Ring Counter.
+          <strong>🔑 Easy Way to Remember:</strong> Imagine filling a water tank — you open a tap and it fills up one slot at a time (all become 1). Then you close the tap and it drains one slot at a time (all become 0). That fill-and-drain cycle is exactly what a Johnson counter does, giving you <strong>8 steps</strong> instead of 4!
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
-            <h3 class="text-sm font-bold font-display text-pink-500">How It Works</h3>
+            <h3 class="text-sm font-bold font-display text-pink-500">How It Works — Step by Step</h3>
             <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside leading-relaxed">
-              <li>Built from N D Flip-Flops in series — same as Ring Counter</li>
-              <li><strong>Key difference:</strong> D0 = Q3' (inverted / complemented output of FF3)</li>
-              <li>When Q3=0 → Q3'=1 → next D0=1 (register fills with 1s)</li>
-              <li>When Q3=1 → Q3'=0 → next D0=0 (register empties with 0s)</li>
-              <li>Starting from 0000: 1s fill left-to-right, then 0s fill left-to-right</li>
-              <li>4-stage Johnson counter has exactly <strong>8 unique states</strong> (= 2N states)</li>
-              <li>Each adjacent pair of states differs by only 1 bit (Gray-code like)</li>
+              <li>4 memory cells connected in a line, just like the Ring Counter</li>
+              <li><strong>The twist:</strong> the last cell's output is <em>flipped</em> (0 becomes 1, 1 becomes 0) before being sent back to the first cell</li>
+              <li>Start with all zeros: <code>0000</code></li>
+              <li>Since the last cell = 0, flipping it gives 1 → so "1" enters at the front</li>
+              <li>1s keep filling in from the left: <code>0000 → 1000 → 1100 → 1110 → 1111</code></li>
+              <li>Now the last cell = 1, flipping gives 0 → so "0" enters at the front</li>
+              <li>0s drain from the left: <code>1111 → 0111 → 0011 → 0001 → 0000</code></li>
+              <li>Total: <strong>8 unique steps</strong> for 4 cells (double the Ring Counter!)</li>
             </ul>
           </div>
           <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
@@ -1027,9 +1024,9 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div class="info-box tip"><strong>✅ Advantages:</strong> 2N states (efficient). Simple 2-input gate decoding for any state. No glitches. Easy to build.</div>
-          <div class="info-box warn"><strong>❌ Disadvantages:</strong> Still has invalid states (16 − 8 = 8 invalid). Needs initialization to 0000 or 1111.</div>
-          <div class="info-box key"><strong>🔧 Applications:</strong> Phase sequence generators, 3-phase motor control, SPI state machines, decade counters.</div>
+          <div class="info-box tip"><strong>✅ Good things:</strong> Gives 8 steps from just 4 cells (very efficient). Easy to decode each step with simple 2-input gates.</div>
+          <div class="info-box warn"><strong>❌ Downside:</strong> Still has 8 unused patterns. Needs to start from <code>0000</code> or <code>1111</code> (a reset circuit is needed).</div>
+          <div class="info-box key"><strong>🔧 Used in:</strong> 3-phase motor speed controllers, signal generators, digital clocks, SPI communication chips.</div>
         </div>
       </section>
 
