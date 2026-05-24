@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Unit V – Sequential Logic Circuits | Circuit Lab</title>
+<meta name="description" content="Interactive Unit V: Latches, Flip-Flops, Master-Slave FF, and Conversions with live circuit simulations."/>
+<link rel="icon" href="assets/favicon.ico"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{colors:{slate:{950:'#0b0f19'}}}}}</script>
+<!-- Gate/Wire CSS from reference (only circuit-specific styles) -->
+<style>
+/* ── Circuit SVG styles ── */
+:root{
+  --accent:#4f8ef7;--accent2:#a855f7;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --wire-0:#4b5563;--wire-1:#22c55e;--gate-fill:#1c2333;--gate-str:#60a5fa;--gate-act:#22c55e;
+  --bg-card:#1c2333;--border-c:rgba(255,255,255,0.08);--tr:0.3s cubic-bezier(.4,0,.2,1);
+}
+html.dark{--gate-fill:#1c2333;--gate-str:#60a5fa;--bg-card:#1c2333;--border-c:rgba(255,255,255,.08)}
+html:not(.dark){--wire-0:#9ca3af;--gate-fill:#fff;--gate-str:#3b82f6;--bg-card:#fff;--accent:#2563eb;--accent2:#9333ea;--border-c:rgba(0,0,0,.08)}
+
+.g-body{fill:var(--gate-fill);stroke:var(--gate-str);stroke-width:2.2;transition:stroke .3s,filter .3s}
+.g-bubble{fill:var(--gate-fill);stroke:var(--gate-str);stroke-width:2}
+.g-text{font-family:'Courier New',monospace;font-size:9px;fill:#94a3b8;font-weight:700}
+.wire{fill:none;stroke:var(--wire-0);stroke-width:2.5;stroke-linecap:round;transition:stroke .3s}
+.wire.hi{stroke:var(--wire-1)}.wire.lo{stroke:var(--wire-0)}.wire.inv{stroke:var(--red)}
+.wire.fb{stroke-dasharray:5,3}
+.node-dot{fill:var(--wire-0);transition:fill .3s}.node-dot.hi{fill:var(--wire-1)}
+.io-label{font-family:'Segoe UI',sans-serif;font-size:11px;font-weight:700;fill:#94a3b8}
+.gate.active .g-body{stroke:var(--gate-act);filter:drop-shadow(0 0 5px rgba(34,197,94,.6))}
+.gate.active .g-text{fill:var(--gate-act)}
+.in-pad{fill:var(--bg-card);stroke:var(--border-c);stroke-width:1.5;cursor:pointer;transition:fill .3s}
+.in-pad.hi{fill:rgba(34,197,94,.18);stroke:var(--green)}.in-pad.inv{fill:rgba(239,68,68,.15);stroke:var(--red)}
+.out-pad{fill:var(--wire-0);transition:fill .3s,filter .3s}
+.out-pad.hi{fill:var(--green);filter:drop-shadow(0 0 6px rgba(34,197,94,.7))}
+.out-pad.inv{fill:var(--red);filter:drop-shadow(0 0 6px rgba(239,68,68,.6))}
+
+/* ── Sim controls ── */
+.sim-status{padding:.5rem .9rem;border-radius:7px;font-size:.85rem;font-weight:600;transition:all .3s;border:1px solid}
+.sim-status.ok{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.25);color:#22c55e}
+.sim-status.warn{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:#ef4444}
+.sim-status{background:rgba(79,142,247,.08);border-color:rgba(79,142,247,.22);color:#4f8ef7}
+.sim-explain{padding:.65rem .9rem;background:rgba(255,255,255,.04);border-radius:7px;border-left:3px solid var(--accent);font-size:.82rem;color:#94a3b8;line-height:1.55}
+.state-box{display:flex;flex-direction:column;align-items:center;gap:.25rem;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:9px;padding:.85rem 1.3rem;min-width:82px;transition:all .3s}
+.state-box.hl{border-color:var(--accent);background:rgba(79,142,247,.08)}
+.state-box.flash{animation:flash .5s ease}
+@keyframes flash{0%{transform:scale(1)}50%{transform:scale(1.09);background:rgba(79,142,247,.2)}100%{transform:scale(1)}}
+.s-label{font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.s-val{font-size:2rem;font-weight:800;color:var(--accent);line-height:1}
+.ff-inputs{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.ff-inputs label{font-size:.85rem;color:#94a3b8;display:flex;align-items:center;gap:.4rem}
+.slider{-webkit-appearance:none;width:55px;height:5px;border-radius:99px;background:rgba(255,255,255,.1);outline:none;cursor:pointer}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--accent);cursor:pointer}
+.inp-val{font-size:1.05rem;font-weight:700;color:var(--accent);min-width:18px}
+.circuit-svg{width:100%;display:block;overflow:visible}
+.t-canvas{width:100%;border-radius:8px;display:block;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+
+/* ── Tab styles ── */
+.u5tab-bar{display:flex;gap:.3rem;flex-wrap:wrap;border-bottom:2px solid rgba(255,255,255,.08);margin-bottom:1.2rem}
+.u5tab{background:none;border:none;border-bottom:3px solid transparent;padding:.5rem 1rem;color:#64748b;cursor:pointer;font-size:.85rem;font-weight:600;border-radius:6px 6px 0 0;transition:all .3s;margin-bottom:-2px}
+.u5tab:hover{color:#4f8ef7}
+.u5tab.on{color:#4f8ef7;border-bottom-color:#4f8ef7;background:rgba(79,142,247,.06)}
+.u5tb{display:none;animation:fadeUp .3s ease}
+.u5tb.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── Cards matching index.html ── */
+.circuit-card{background:rgba(28,35,51,0.65);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.4rem}
+html:not(.dark) .circuit-card{background:rgba(255,255,255,.85);border-color:rgba(0,0,0,.09)}
+.badge-pill{display:inline-block;background:rgba(79,142,247,.12);color:#4f8ef7;border:1px solid rgba(79,142,247,.28);border-radius:99px;padding:.25rem .85rem;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.eq-box{background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:8px;padding:.7rem 1rem;font-family:'Courier New',monospace;font-size:.9rem;margin:.8rem 0;color:#e2e8f0}
+.warn-box{background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.28);border-radius:7px;padding:.6rem .9rem;color:#ef4444;font-size:.83rem;font-weight:600;margin-top:.8rem}
+.note-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);border-radius:7px;padding:.65rem .9rem;font-size:.82rem;color:#94a3b8;margin-top:.8rem}
+
+/* ── Truth table ── */
+.tt{width:100%;border-collapse:collapse;font-size:.84rem}
+.tt th{background:rgba(79,142,247,.12);color:#4f8ef7;padding:.5rem .75rem;text-align:center;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}
+.tt td{padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,.06);text-align:center;color:#94a3b8;transition:background .3s}
+.tt tr:hover td,.tt tr.hl td{background:rgba(79,142,247,.09);color:#e2e8f0}
+.set{color:#22c55e;font-weight:700}.res{color:#ef4444;font-weight:700}
+.hld{color:#4f8ef7;font-weight:700}.inv{color:#f59e0b;font-weight:700}.tog{color:#a855f7;font-weight:700}
+.badge{display:inline-block;padding:.12rem .45rem;border-radius:4px;font-size:.72rem;font-weight:700}
+.badge.S{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.badge.R{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25)}
+.badge.H{background:rgba(79,142,247,.12);color:#4f8ef7;border:1px solid rgba(79,142,247,.25)}
+.badge.I{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
+.badge.T{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.25)}
+
+/* ── MS layout ── */
+.ms-step{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);opacity:.55;transition:all .3s}
+.ms-step.on{opacity:1;border-color:#4f8ef7;background:rgba(79,142,247,.07)}
+.ms-sn{min-width:24px;height:24px;background:#4f8ef7;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.ms-txt{font-size:.83rem;color:#94a3b8;line-height:1.5}
+
+/* ── Conv steps ── */
+.conv-btn{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);color:#94a3b8;border-radius:7px;padding:.4rem .9rem;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .3s}
+.conv-btn:hover,.conv-btn.on{border-color:#a855f7;background:rgba(168,85,247,.12);color:#a855f7}
+.conv-panel{display:none;animation:fadeUp .3s ease}.conv-panel.on{display:block}
+.conv-step{padding:.85rem;background:rgba(255,255,255,.03);border-radius:7px;border-left:3px solid rgba(255,255,255,.1);margin-bottom:.85rem;transition:border-color .3s}
+.conv-step:hover{border-left-color:#a855f7}
+.conv-step h5{font-size:.83rem;font-weight:700;color:#f8fafc;margin-bottom:.5rem}
+.conv-result{border-left-color:#22c55e!important;background:rgba(34,197,94,.05)}
+.conv-eq{font-family:'Courier New',monospace;font-size:.95rem;font-weight:700;color:#22c55e;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);border-radius:5px;padding:.35rem .75rem;display:inline-block;margin:.15rem .2rem}
+
+/* ── kmap ── */
+.kmap-grid{display:grid;border:1px solid rgba(255,255,255,.1);border-radius:5px;overflow:hidden;font-size:.82rem}
+.kg-2{grid-template-columns:auto 1fr 1fr}
+.kh{background:rgba(79,142,247,.1);color:#4f8ef7;padding:.35rem .5rem;text-align:center;font-weight:700;font-size:.76rem;border-bottom:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08)}
+.kc{background:rgba(255,255,255,.03);padding:.4rem;text-align:center;border-bottom:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);color:#94a3b8;font-weight:700}
+.kc.grp{background:rgba(34,197,94,.13);color:#22c55e}
+.kc.grp2{background:rgba(168,85,247,.12);color:#a855f7}
+.kmap-res{font-family:'Courier New',monospace;font-size:.88rem;font-weight:700;color:#4f8ef7;margin-top:.4rem;text-align:center}
+
+/* ── qck ── */
+.qck-opt{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);color:#e2e8f0;border-radius:7px;padding:.5rem .9rem;font-size:.85rem;cursor:pointer;transition:all .3s}
+.qck-opt:hover{border-color:#4f8ef7;color:#4f8ef7}
+.qck-opt.correct{background:rgba(34,197,94,.14);border-color:#22c55e;color:#22c55e}
+.qck-opt.wrong{background:rgba(239,68,68,.1);border-color:#ef4444;color:#ef4444}
+.sim-btn-ref{background:rgba(79,142,247,.11);border:1.5px solid rgba(79,142,247,.28);color:#4f8ef7;border-radius:7px;padding:.42rem .95rem;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .3s}
+.sim-btn-ref:hover{background:rgba(79,142,247,.22);transform:translateY(-1px)}
+.sim-btn-ref.red{background:rgba(239,68,68,.1)!important;border-color:rgba(239,68,68,.3)!important;color:#ef4444!important}
+.sim-btn-ref.purple{background:rgba(168,85,247,.12)!important;border-color:rgba(168,85,247,.3)!important;color:#a855f7!important}
+.sim-btn-ref.clk{background:rgba(168,85,247,.14)!important;border-color:rgba(168,85,247,.35)!important;color:#a855f7!important;animation:clkPulse 1.8s infinite}
+@keyframes clkPulse{0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,.4)}50%{box-shadow:0 0 0 7px rgba(168,85,247,0)}}
+.race-bar{height:18px;background:rgba(255,255,255,.06);border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,.1);margin:.6rem 0}
+.race-ind{height:100%;background:linear-gradient(90deg,#4f8ef7,#a855f7);border-radius:9px;animation:raceFly .28s step-end infinite}
+@keyframes raceFly{0%{width:20%;background:#22c55e}50%{width:80%;background:#ef4444}100%{width:20%;background:#22c55e}}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen">
+
+<!-- ══ TOP NAV (same as index.html) ══ -->
+<header class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+  <div class="w-full px-4 sm:px-6 xl:px-10">
+    <div class="flex items-center justify-between h-16">
+      <a href="index.html" class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow">S</div>
+        <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-cyan-600 to-blue-500 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent">Sequential Circuit Lab</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+        <a href="#intro"      class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Introduction</a>
+        <a href="#sr-latch"   class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">SR Latch</a>
+        <a href="#d-latch"    class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">D Latch</a>
+        <a href="#flipflops"  class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Flip-Flops</a>
+        <a href="#masterslave" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Master-Slave</a>
+        <a href="#conversions" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Conversions</a>
+        <a href="index.html"  class="ml-2 px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/20 transition-colors text-xs font-bold border border-cyan-200 dark:border-cyan-900"><i class="fas fa-arrow-left mr-1"></i>Lab</a>
+      </nav>
+      <button id="themeToggle" onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <i class="fas fa-sun text-yellow-400 dark:hidden"></i>
+        <i class="fas fa-moon text-blue-400 hidden dark:inline"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full px-4 sm:px-6 xl:px-10 py-8 space-y-12 max-w-screen-2xl mx-auto">
+
+<!-- ══ HERO ══ -->
+<section id="intro" class="relative bg-gradient-to-br from-purple-500/10 via-cyan-500/5 to-blue-500/10 dark:from-purple-950/30 dark:to-blue-950/20 rounded-3xl p-8 sm:p-12 border border-slate-200/50 dark:border-slate-800/50 overflow-hidden">
+  <div class="absolute inset-0 opacity-5" style="background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,#06b6d4 40px,#06b6d4 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,#06b6d4 40px,#06b6d4 41px)"></div>
+  <div class="relative z-10 max-w-3xl">
+    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider mb-4"><i class="fas fa-microchip animate-pulse"></i> Unit V</span>
+    <h1 class="text-3xl sm:text-5xl font-black tracking-tight mb-4 bg-gradient-to-r from-white to-slate-300 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">Sequential Logic<br><span class="text-purple-400">Circuits</span></h1>
+    <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed mb-6">Gate-level interactive simulations — understand Latches, Flip-Flops, Master-Slave FF, and Conversions visually with live animated circuit diagrams.</p>
+    <div class="flex flex-wrap gap-4 text-sm">
+      <div class="flex items-center gap-2 text-cyan-400"><i class="fas fa-project-diagram"></i><span>17 Circuit Diagrams</span></div>
+      <div class="flex items-center gap-2 text-purple-400"><i class="fas fa-play-circle"></i><span>10+ Live Simulators</span></div>
+      <div class="flex items-center gap-2 text-emerald-400"><i class="fas fa-table"></i><span>Excitation Tables</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SR LATCH ══ -->
+<section id="sr-latch" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg">🔒</div>
+    <div><span class="badge-pill">Latch 1</span><h2 class="text-2xl font-bold dark:text-white">SR Latch</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">The fundamental memory cell — two cross-coupled gates with Set and Reset inputs. Available in NOR and NAND variants.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab5('srl','nor',this)">NOR Latch</button>
+    <button class="u5tab" onclick="tab5('srl','nand',this)">NAND Latch</button>
+    <button class="u5tab" onclick="tab5('srl','tt',this)">Truth Table</button>
+    <button class="u5tab" onclick="tab5('srl','td',this)">Timing Diagram</button>
+  </div>
+
+  <!-- NOR LATCH -->
+  <div id="srl-nor" class="u5tb on">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">SR Latch — NOR Gate Implementation</h4>
+        <svg id="norSVG" class="circuit-svg" viewBox="0 0 500 220" aria-label="SR NOR Latch" style="min-height:200px">
+          <!-- ── Input labels ── -->
+          <text x="12" y="28" class="io-label" style="font-size:12px;fill:#4f8ef7;font-weight:800">S</text>
+          <text x="12" y="168" class="io-label" style="font-size:12px;fill:#a855f7;font-weight:800">R</text>
+          <!-- ── Input pads (clickable) ── -->
+          <rect id="norSpad" x="8" y="32" width="52" height="28" rx="6" class="in-pad" onclick="togNOR('S')" style="cursor:pointer"/>
+          <text id="norSval" x="34" y="51" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">S=0</text>
+          <rect id="norRpad" x="8" y="150" width="52" height="28" rx="6" class="in-pad" onclick="togNOR('R')" style="cursor:pointer"/>
+          <text id="norRval" x="34" y="169" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">R=0</text>
+          <!-- ── NOR Gate 1 (top): S + Q̄-feedback → Q̄ ── -->
+          <g id="norG1" class="gate">
+            <path d="M170,28 Q192,28 203,40 Q213,57 203,68 Q192,80 170,80 Q182,57 170,28Z" class="g-body"/>
+            <circle cx="219" cy="54" r="7" class="g-bubble"/>
+            <text x="188" y="58" text-anchor="middle" class="g-text" style="font-size:10px">NOR</text>
+            <line x1="170" y1="40" x2="148" y2="40" class="wire" id="n1-in1"/>
+            <line x1="170" y1="68" x2="148" y2="68" class="wire" id="n1-in2"/>
+          </g>
+          <!-- ── NOR Gate 2 (bot): R + Q-feedback → Q ── -->
+          <g id="norG2" class="gate">
+            <path d="M170,130 Q192,130 203,142 Q213,159 203,170 Q192,182 170,182 Q182,159 170,130Z" class="g-body"/>
+            <circle cx="219" cy="156" r="7" class="g-bubble"/>
+            <text x="188" y="160" text-anchor="middle" class="g-text" style="font-size:10px">NOR</text>
+            <line x1="170" y1="142" x2="148" y2="142" class="wire" id="n2-in1"/>
+            <line x1="170" y1="170" x2="148" y2="170" class="wire" id="n2-in2"/>
+          </g>
+          <!-- ── S wire: pad → NOR1 top input ── -->
+          <line x1="60" y1="46" x2="92" y2="46" class="wire" id="wS1"/>
+          <line x1="92" y1="46" x2="92" y2="40" class="wire" id="wS2"/>
+          <line x1="92" y1="40" x2="148" y2="40" class="wire" id="wS3"/>
+          <!-- ── R wire: pad → NOR2 top input ── -->
+          <line x1="60" y1="164" x2="100" y2="164" class="wire" id="wR1"/>
+          <line x1="100" y1="164" x2="100" y2="142" class="wire" id="wR2"/>
+          <line x1="100" y1="142" x2="148" y2="142" class="wire" id="wR3"/>
+          <!-- ── Q output (from NOR1 bubble) ── -->
+          <line x1="226" y1="54" x2="340" y2="54" class="wire" id="wQ1"/>
+          <rect id="norQpad" x="340" y="40" width="52" height="28" rx="6" class="out-pad"/>
+          <text x="366" y="59" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;fill:#fff;pointer-events:none" id="norQtxt">Q=0</text>
+          <text x="400" y="58" class="io-label" style="font-size:13px;fill:#22c55e;font-weight:800">Q</text>
+          <!-- ── Q̄ output (from NOR2 bubble) ── -->
+          <line x1="226" y1="156" x2="340" y2="156" class="wire" id="wQb1"/>
+          <rect id="norQbpad" x="340" y="142" width="52" height="28" rx="6" class="out-pad hi"/>
+          <text x="366" y="161" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;fill:#fff;pointer-events:none" id="norQbtxt">Q̄=1</text>
+          <text x="400" y="160" class="io-label" style="font-size:13px;fill:#a855f7;font-weight:800">Q̄</text>
+          <!-- ── Feedback: Q → NOR2 bot input (route BELOW) ── -->
+          <circle cx="310" cy="54" r="5" class="node-dot" id="norQfbDot"/>
+          <line x1="310" y1="54" x2="310" y2="205" class="wire fb" id="wFB1"/>
+          <line x1="310" y1="205" x2="128" y2="205" class="wire fb" id="wFB2"/>
+          <line x1="128" y1="205" x2="128" y2="170" class="wire fb" id="wFB3"/>
+          <line x1="128" y1="170" x2="148" y2="170" class="wire fb" id="wFB4"/>
+          <text x="190" y="217" class="io-label" style="font-size:8px;fill:#64748b">Q→NOR2 (feedback)</text>
+          <!-- ── Feedback: Q̄ → NOR1 bot input (route ABOVE) ── -->
+          <circle cx="290" cy="156" r="5" class="node-dot" id="norQbfbDot"/>
+          <line x1="290" y1="156" x2="290" y2="12" class="wire fb" id="wFB5"/>
+          <line x1="290" y1="12" x2="120" y2="12" class="wire fb" id="wFB6"/>
+          <line x1="120" y1="12" x2="120" y2="68" class="wire fb" id="wFB7"/>
+          <line x1="120" y1="68" x2="148" y2="68" class="wire fb" id="wFB8"/>
+          <text x="155" y="10" class="io-label" style="font-size:8px;fill:#64748b">Q̄→NOR1 (feedback)</text>
+        </svg>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button class="sim-btn-ref" onclick="togNOR('S')">Toggle S</button>
+          <button class="sim-btn-ref" onclick="togNOR('R')">Toggle R</button>
+          <button class="sim-btn-ref red" onclick="rstNOR()">↺ Reset</button>
+        </div>
+        <div class="sim-status mt-3" id="norStat">State: HOLD — Q=0, Q̄=1</div>
+        <div class="sim-explain mt-2" id="norExp">S=0, R=0 → Both NOR inputs from S and R are 0. Outputs maintain previous state through cross-feedback.</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">📋 NOR SR Latch</h4>
+        <div class="overflow-x-auto"><table class="tt">
+          <thead><tr><th>S</th><th>R</th><th>Q</th><th>Q̄</th><th>State</th></tr></thead>
+          <tbody>
+            <tr id="norRow00"><td>0</td><td>0</td><td>Q</td><td>Q̄</td><td><span class="badge H">Hold</span></td></tr>
+            <tr id="norRow01"><td>0</td><td>1</td><td>0</td><td>1</td><td><span class="badge R">Reset</span></td></tr>
+            <tr id="norRow10"><td>1</td><td>0</td><td>1</td><td>0</td><td><span class="badge S">Set</span></td></tr>
+            <tr id="norRow11"><td>1</td><td>1</td><td class="inv">?</td><td class="inv">?</td><td><span class="badge I">Invalid</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="eq-box">Q(n+1) = S + R̄·Q<br><small>Constraint: S·R = 0</small></div>
+        <div class="warn-box">⚠️ S=R=1 forces both NOR outputs to 0. When inputs return to 0,0 final state is <em>unpredictable</em> (race condition).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAND LATCH -->
+  <div id="srl-nand" class="u5tb">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">SR Latch — NAND Gate Implementation (Active-Low)</h4>
+        <svg id="nandSVG" class="circuit-svg" viewBox="0 0 500 220" aria-label="SR NAND Latch" style="min-height:200px">
+          <text x="12" y="28" class="io-label" style="font-size:12px;fill:#4f8ef7;font-weight:800">S̄</text>
+          <text x="12" y="168" class="io-label" style="font-size:12px;fill:#a855f7;font-weight:800">R̄</text>
+          <rect id="nandSpad" x="8" y="32" width="52" height="28" rx="6" class="in-pad hi" onclick="togNAND('S')" style="cursor:pointer"/>
+          <text id="nandSval" x="34" y="51" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">S̄=1</text>
+          <rect id="nandRpad" x="8" y="150" width="52" height="28" rx="6" class="in-pad hi" onclick="togNAND('R')" style="cursor:pointer"/>
+          <text id="nandRval" x="34" y="169" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">R̄=1</text>
+          <!-- NAND Gate 1 -->
+          <g id="nandG1" class="gate">
+            <path d="M170,28 L170,80 Q215,80 215,54 Q215,28 170,28Z" class="g-body"/>
+            <circle cx="222" cy="54" r="7" class="g-bubble"/>
+            <text x="190" y="58" text-anchor="middle" class="g-text" style="font-size:9px">NAND</text>
+            <line x1="170" y1="40" x2="148" y2="40" class="wire" id="nd1-in1"/>
+            <line x1="170" y1="68" x2="148" y2="68" class="wire" id="nd1-in2"/>
+          </g>
+          <!-- NAND Gate 2 -->
+          <g id="nandG2" class="gate">
+            <path d="M170,130 L170,182 Q215,182 215,156 Q215,130 170,130Z" class="g-body"/>
+            <circle cx="222" cy="156" r="7" class="g-bubble"/>
+            <text x="190" y="160" text-anchor="middle" class="g-text" style="font-size:9px">NAND</text>
+            <line x1="170" y1="142" x2="148" y2="142" class="wire" id="nd2-in1"/>
+            <line x1="170" y1="170" x2="148" y2="170" class="wire" id="nd2-in2"/>
+          </g>
+          <line x1="60" y1="46" x2="92" y2="46" class="wire hi" id="ndwS1"/>
+          <line x1="92" y1="46" x2="92" y2="40" class="wire hi" id="ndwS2"/>
+          <line x1="92" y1="40" x2="148" y2="40" class="wire hi" id="ndwS3"/>
+          <line x1="60" y1="164" x2="100" y2="164" class="wire hi" id="ndwR1"/>
+          <line x1="100" y1="164" x2="100" y2="142" class="wire hi" id="ndwR2"/>
+          <line x1="100" y1="142" x2="148" y2="142" class="wire hi" id="ndwR3"/>
+          <line x1="229" y1="54" x2="340" y2="54" class="wire hi" id="ndwQ"/>
+          <rect id="nandQpad" x="340" y="40" width="52" height="28" rx="6" class="out-pad hi"/>
+          <text x="366" y="59" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;fill:#fff;pointer-events:none" id="nandQtxt">Q=1</text>
+          <text x="400" y="58" class="io-label" style="font-size:13px;fill:#22c55e;font-weight:800">Q</text>
+          <line x1="229" y1="156" x2="340" y2="156" class="wire" id="ndwQb"/>
+          <rect id="nandQbpad" x="340" y="142" width="52" height="28" rx="6" class="out-pad"/>
+          <text x="366" y="161" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;fill:#fff;pointer-events:none" id="nandQbtxt">Q̄=0</text>
+          <text x="400" y="160" class="io-label" style="font-size:13px;fill:#a855f7;font-weight:800">Q̄</text>
+          <!-- Feedback Q→NAND2 bot (below) -->
+          <circle cx="308" cy="54" r="5" class="node-dot hi" id="ndQfbDot"/>
+          <line x1="308" y1="54" x2="308" y2="205" class="wire fb hi" id="ndwFB1"/>
+          <line x1="308" y1="205" x2="128" y2="205" class="wire fb hi" id="ndwFB2"/>
+          <line x1="128" y1="205" x2="128" y2="170" class="wire fb hi" id="ndwFB3"/>
+          <line x1="128" y1="170" x2="148" y2="170" class="wire fb hi" id="ndwFB4"/>
+          <!-- Feedback Q̄→NAND1 bot (above) -->
+          <circle cx="288" cy="156" r="5" class="node-dot" id="ndQbfbDot"/>
+          <line x1="288" y1="156" x2="288" y2="12" class="wire fb" id="ndwFB5"/>
+          <line x1="288" y1="12" x2="120" y2="12" class="wire fb" id="ndwFB6"/>
+          <line x1="120" y1="12" x2="120" y2="68" class="wire fb" id="ndwFB7"/>
+          <line x1="120" y1="68" x2="148" y2="68" class="wire fb" id="ndwFB8"/>
+          <text x="150" y="10" class="io-label" style="font-size:8px;fill:#64748b">Q̄ → NAND1 (feedback)</text>
+          <text x="155" y="217" class="io-label" style="font-size:8px;fill:#64748b">Q → NAND2 (feedback)</text>
+        </svg>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button class="sim-btn-ref" onclick="togNAND('S')">Toggle S̄</button>
+          <button class="sim-btn-ref" onclick="togNAND('R')">Toggle R̄</button>
+          <button class="sim-btn-ref red" onclick="rstNAND()">↺ Reset</button>
+        </div>
+        <div class="sim-status mt-3" id="nandStat">State: HOLD — Q=1, Q̄=0</div>
+        <div class="sim-explain mt-2" id="nandExp">S̄=R̄=1: Both NAND inputs from feedback prevent change. Outputs maintained by cross-coupled feedback.</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">📋 NAND SR Latch (Active-Low)</h4>
+        <div class="overflow-x-auto"><table class="tt">
+          <thead><tr><th>S̄</th><th>R̄</th><th>Q</th><th>Q̄</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td class="inv">0</td><td class="inv">0</td><td class="inv">1</td><td class="inv">1</td><td><span class="badge I">Invalid</span></td></tr>
+            <tr><td class="set">0</td><td>1</td><td>1</td><td>0</td><td><span class="badge S">Set</span></td></tr>
+            <tr><td>1</td><td class="res">0</td><td>0</td><td>1</td><td><span class="badge R">Reset</span></td></tr>
+            <tr><td>1</td><td>1</td><td>Q</td><td>Q̄</td><td><span class="badge H">Hold</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="note-box">💡 NAND latch is <strong>active-low</strong>: inputs are normally HIGH. Pulling LOW activates it. Invalid when both inputs are 0.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRUTH TABLE TAB -->
+  <div id="srl-tt" class="u5tb">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">NOR SR Latch — Click a row to see explanation</h4>
+        <div class="overflow-x-auto"><table class="tt" id="srlTT">
+          <thead><tr><th>S</th><th>R</th><th>Q(next)</th><th>Q̄(next)</th><th>Condition</th></tr></thead>
+          <tbody>
+            <tr onclick="srlTTclick('00')" class="cursor-pointer"><td>0</td><td>0</td><td>Q</td><td>Q̄</td><td><span class="badge H">Hold</span></td></tr>
+            <tr onclick="srlTTclick('01')" class="cursor-pointer"><td>0</td><td>1</td><td class="res">0</td><td class="set">1</td><td><span class="badge R">Reset</span></td></tr>
+            <tr onclick="srlTTclick('10')" class="cursor-pointer"><td>1</td><td>0</td><td class="set">1</td><td class="res">0</td><td><span class="badge S">Set</span></td></tr>
+            <tr onclick="srlTTclick('11')" class="cursor-pointer"><td>1</td><td>1</td><td class="inv">?</td><td class="inv">?</td><td><span class="badge I">⚠️ Invalid</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="sim-explain mt-3" id="srlTTexp">👆 Click any row to see a detailed explanation.</div>
+      </div>
+      <div class="circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">⚠️ Invalid State Deep Dive</h4>
+        <ul class="text-sm text-slate-400 list-disc pl-4 space-y-2">
+          <li>Both NOR gates see a HIGH input → both outputs forced to 0</li>
+          <li>Q = Q̄ = 0 violates the complementary rule</li>
+          <li>When S,R return to 0,0 → outputs race to random stable state</li>
+          <li>This unpredictability is called a <strong class="text-white">race condition</strong></li>
+        </ul>
+        <div class="warn-box mt-3">Always ensure S·R = 0 in SR latch designs!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMING DIAGRAM TAB -->
+  <div id="srl-td" class="u5tb">
+    <div class="circuit-card">
+      <h4 class="font-bold text-sm text-slate-200 mb-3">⏱ SR Latch Timing Diagram</h4>
+      <canvas id="srlTD" class="t-canvas" height="220"></canvas>
+      <div class="flex gap-2 mt-3">
+        <button class="sim-btn-ref" id="srlTDplay" onclick="tdCtrl('srl','play')">▶ Play</button>
+        <button class="sim-btn-ref" onclick="tdCtrl('srl','step')">⏭ Step</button>
+        <button class="sim-btn-ref red" onclick="tdCtrl('srl','reset')">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ D LATCH ══ -->
+<section id="d-latch" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow-lg">💾</div>
+    <div><span class="badge-pill" style="background:rgba(34,197,94,.12);color:#22c55e;border-color:rgba(34,197,94,.28)">Latch 2</span><h2 class="text-2xl font-bold dark:text-white">D Latch</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Eliminates the invalid state by ensuring S and R are always complements via an inverter. Single D input + Enable (EN) control.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab5('dl','circ',this)">Circuit</button>
+    <button class="u5tab" onclick="tab5('dl','tt',this)">Truth Table</button>
+    <button class="u5tab" onclick="tab5('dl','td',this)">Timing Diagram</button>
+  </div>
+
+  <div id="dl-circ" class="u5tb on">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">D Latch — Gate-Level (4-NAND Implementation)</h4>
+        <svg id="dlSVG" class="circuit-svg" viewBox="0 0 620 280" aria-label="D Latch gate diagram" style="min-height:240px">
+          <!-- ═══ Input labels & pads ═══ -->
+          <text x="10" y="30" class="io-label" style="font-size:13px;fill:#4f8ef7;font-weight:800">D</text>
+          <text x="8" y="172" class="io-label" style="font-size:12px;fill:#a855f7;font-weight:800">EN</text>
+          <rect id="dlDpad"  x="8" y="35" width="56" height="28" rx="6" class="in-pad" onclick="togDL('D')"  style="cursor:pointer"/>
+          <text id="dlDval"  x="36" y="54" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">D=0</text>
+          <rect id="dlENpad" x="8" y="175" width="56" height="28" rx="6" class="in-pad" onclick="togDL('EN')" style="cursor:pointer"/>
+          <text id="dlENval" x="36" y="194" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">EN=0</text>
+
+          <!-- ═══ NOT gate: D → D̄ ═══ -->
+          <g id="dlNOT" class="gate">
+            <polygon points="100,38 100,66 126,52" class="g-body"/>
+            <circle cx="133" cy="52" r="7" class="g-bubble"/>
+            <text x="110" y="56" text-anchor="middle" class="g-text" style="font-size:8px">NOT</text>
+          </g>
+          <!-- D → NOT input -->
+          <line x1="64" y1="49" x2="100" y2="49" class="wire" id="dlwD1"/>
+          <!-- D̄ label -->
+          <text x="142" y="42" class="io-label" style="font-size:10px;fill:#64748b">D̄</text>
+
+          <!-- ═══ D fork: goes to NAND1 (top) and via D̄ wire to NAND2 (bot) ═══ -->
+          <!-- D also taps down toward NAND1 top input -->
+          <line x1="72" y1="49" x2="72" y2="116" class="wire" id="dlwD2"/>
+          <circle cx="72" cy="49" r="4" class="node-dot" style="fill:var(--wire-0)"/>
+
+          <!-- ═══ Steering NAND1: D·EN → S̄ ═══ -->
+          <g id="dlN1" class="gate">
+            <path d="M165,95 L165,145 Q210,145 210,120 Q210,95 165,95Z" class="g-body"/>
+            <circle cx="217" cy="120" r="7" class="g-bubble"/>
+            <text x="186" y="124" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="165" y1="107" x2="138" y2="107" class="wire" id="dlN1i1"/>
+            <line x1="165" y1="133" x2="138" y2="133" class="wire" id="dlN1i2"/>
+          </g>
+          <!-- D → NAND1 top -->
+          <line x1="72" y1="116" x2="96" y2="116" class="wire" id="dlwD3"/>
+          <line x1="96"  y1="116" x2="96" y2="107" class="wire" id="dlwD4"/>
+          <line x1="96"  y1="107" x2="138" y2="107" class="wire" id="dlwD5"/>
+          <!-- EN → NAND1 bot (EN wire forks) -->
+          <line x1="36" y1="189" x2="36" y2="133" class="wire" id="dlwEN1"/>
+          <circle cx="36" cy="133" r="4" class="node-dot" id="dlENjDot"/>
+          <line x1="36" y1="133" x2="138" y2="133" class="wire" id="dlwEN2"/>
+
+          <!-- ═══ Steering NAND2: D̄·EN → R̄ ═══ -->
+          <g id="dlN2" class="gate">
+            <path d="M165,175 L165,225 Q210,225 210,200 Q210,175 165,175Z" class="g-body"/>
+            <circle cx="217" cy="200" r="7" class="g-bubble"/>
+            <text x="186" y="204" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="165" y1="187" x2="138" y2="187" class="wire" id="dlN2i1"/>
+            <line x1="165" y1="213" x2="138" y2="213" class="wire" id="dlN2i2"/>
+          </g>
+          <!-- D̄ (NOT output) → NAND2 top -->
+          <line x1="140" y1="52" x2="150" y2="52" class="wire" id="dlwDb1"/>
+          <line x1="150" y1="52" x2="150" y2="187" class="wire" id="dlwDb2"/>
+          <line x1="150" y1="187" x2="138" y2="187" class="wire"/>
+          <!-- EN → NAND2 bot -->
+          <line x1="36" y1="133" x2="36" y2="213" class="wire" id="dlwEN3"/>
+          <line x1="36" y1="213" x2="138" y2="213" class="wire"/>
+
+          <!-- S̄ / R̄ labels -->
+          <text x="222" y="115" class="io-label" style="font-size:9px;fill:#22c55e">S̄</text>
+          <text x="222" y="195" class="io-label" style="font-size:9px;fill:#ef4444">R̄</text>
+
+          <!-- ═══ SR NAND latch: NAND3 & NAND4 ═══ -->
+          <g id="dlN3" class="gate">
+            <path d="M310,78 L310,128 Q358,128 358,103 Q358,78 310,78Z" class="g-body"/>
+            <circle cx="365" cy="103" r="7" class="g-bubble"/>
+            <text x="332" y="107" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="310" y1="90"  x2="280" y2="90"  class="wire" id="dlN3i1"/>
+            <line x1="310" y1="116" x2="280" y2="116" class="wire" id="dlN3i2"/>
+          </g>
+          <g id="dlN4" class="gate">
+            <path d="M310,172 L310,222 Q358,222 358,197 Q358,172 310,172Z" class="g-body"/>
+            <circle cx="365" cy="197" r="7" class="g-bubble"/>
+            <text x="332" y="201" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="310" y1="184" x2="280" y2="184" class="wire" id="dlN4i1"/>
+            <line x1="310" y1="210" x2="280" y2="210" class="wire" id="dlN4i2"/>
+          </g>
+          <!-- S̄ → NAND3 top -->
+          <line x1="224" y1="120" x2="255" y2="120" class="wire" id="dlwS1"/>
+          <line x1="255" y1="120" x2="255" y2="90" class="wire" id="dlwS2"/>
+          <line x1="255" y1="90" x2="280" y2="90" class="wire"/>
+          <!-- R̄ → NAND4 bot -->
+          <line x1="224" y1="200" x2="258" y2="200" class="wire" id="dlwR1"/>
+          <line x1="258" y1="200" x2="258" y2="210" class="wire" id="dlwR2"/>
+          <line x1="258" y1="210" x2="280" y2="210" class="wire"/>
+
+          <!-- ═══ Cross-coupling inside latch ═══ -->
+          <line x1="280" y1="116" x2="274" y2="116" class="wire"/>
+          <line x1="274" y1="116" x2="274" y2="184" class="wire"/>
+          <line x1="274" y1="184" x2="280" y2="184" class="wire"/>
+
+          <!-- ═══ Q output ═══ -->
+          <line x1="372" y1="103" x2="490" y2="103" class="wire" id="dlwQ"/>
+          <rect id="dlQpad" x="490" y="89" width="60" height="28" rx="6" class="out-pad"/>
+          <text x="520" y="108" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;fill:#fff;pointer-events:none" id="dlQtxt">Q=0</text>
+          <text x="558" y="107" class="io-label" style="font-size:14px;fill:#22c55e;font-weight:800">Q</text>
+
+          <!-- ═══ Q̄ output ═══ -->
+          <line x1="372" y1="197" x2="490" y2="197" class="wire" id="dlwQb"/>
+          <rect id="dlQbpad" x="490" y="183" width="60" height="28" rx="6" class="out-pad hi"/>
+          <text x="520" y="202" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;fill:#fff;pointer-events:none" id="dlQbtxt">Q̄=1</text>
+          <text x="558" y="201" class="io-label" style="font-size:14px;fill:#a855f7;font-weight:800">Q̄</text>
+
+          <!-- ═══ Q feedback → NAND4 top (below) ═══ -->
+          <circle cx="450" cy="103" r="5" class="node-dot" id="dlQfbDot"/>
+          <line x1="450" y1="103" x2="450" y2="264" class="wire fb" id="dlwFB1"/>
+          <line x1="450" y1="264" x2="258" y2="264" class="wire fb" id="dlwFB2"/>
+          <line x1="258" y1="264" x2="258" y2="184" class="wire fb" id="dlwFB3"/>
+          <line x1="258" y1="184" x2="280" y2="184" class="wire fb" id="dlwFB4"/>
+          <text x="310" y="275" class="io-label" style="font-size:8px;fill:#64748b">Q → NAND4 (feedback)</text>
+
+          <!-- ═══ Q̄ feedback → NAND3 bot (above) ═══ -->
+          <circle cx="430" cy="197" r="5" class="node-dot hi" id="dlQbfbDot"/>
+          <line x1="430" y1="197" x2="430" y2="12" class="wire fb hi" id="dlwFB5"/>
+          <line x1="430" y1="12"  x2="244" y2="12" class="wire fb hi" id="dlwFB6"/>
+          <line x1="244" y1="12"  x2="244" y2="116" class="wire fb hi" id="dlwFB7"/>
+          <line x1="244" y1="116" x2="280" y2="116" class="wire fb hi" id="dlwFB8"/>
+          <text x="300" y="10" class="io-label" style="font-size:8px;fill:#64748b">Q̄ → NAND3 (feedback)</text>
+
+          <!-- Section labels -->
+          <text x="166" y="88" class="io-label" style="font-size:8px;fill:#4f8ef7;opacity:.8">Steering NANDs</text>
+          <text x="312" y="72" class="io-label" style="font-size:8px;fill:#a855f7;opacity:.8">SR latch</text>
+        </svg>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button class="sim-btn-ref" onclick="togDL('D')">Toggle D</button>
+          <button class="sim-btn-ref purple" onclick="togDL('EN')">Toggle EN</button>
+          <button class="sim-btn-ref red" onclick="rstDL()">↺ Reset</button>
+        </div>
+        <div class="sim-status mt-3" id="dlStat">EN=0 → Latch disabled, Q holds</div>
+        <div class="sim-explain mt-2" id="dlExp">EN=0: Both NAND gates (S̄/R̄ arms) output 1 regardless of D. The cross-coupled NAND latch holds its state.</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">💡 Why D Latch fixes Invalid State</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">The NOT gate ensures S̄ and R̄ are always complements — so S=R=1 (NOR invalid) can never happen.</p>
+        <div class="eq-box">Q(n+1) = D &nbsp;(when EN=1)<br>Q(n+1) = Q &nbsp;(when EN=0)</div>
+        <div class="note-box">🚪 <strong>Analogy:</strong> EN is a door. When EN=1 (open), D walks in and sets Q. When EN=0 (closed), Q is sealed inside.</div>
+        <table class="tt mt-2">
+          <thead><tr><th>EN</th><th>D</th><th>Q(next)</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>×</td><td>Q</td><td><span class="badge H">Latch</span></td></tr>
+            <tr><td>1</td><td>0</td><td class="res">0</td><td><span class="badge R">Reset</span></td></tr>
+            <tr><td>1</td><td>1</td><td class="set">1</td><td><span class="badge S">Set</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="dl-tt" class="u5tb">
+    <div class="circuit-card"><h4 class="font-bold text-sm text-slate-200 mb-3">D Latch Truth Table</h4>
+      <div class="overflow-x-auto"><table class="tt"><thead><tr><th>EN</th><th>D</th><th>Q(next)</th><th>Q̄(next)</th><th>State</th></tr></thead><tbody>
+        <tr><td>0</td><td>×</td><td>Q</td><td>Q̄</td><td><span class="badge H">Latch</span></td></tr>
+        <tr><td>1</td><td>0</td><td class="res">0</td><td class="set">1</td><td><span class="badge R">Reset</span></td></tr>
+        <tr><td>1</td><td>1</td><td class="set">1</td><td class="res">0</td><td><span class="badge S">Set</span></td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+  <div id="dl-td" class="u5tb">
+    <div class="circuit-card"><h4 class="font-bold text-sm text-slate-200 mb-3">⏱ D Latch Timing Diagram</h4>
+      <canvas id="dlTD" class="t-canvas" height="220"></canvas>
+      <div class="flex gap-2 mt-3">
+        <button class="sim-btn-ref" id="dlTDplay" onclick="tdCtrl('dl','play')">▶ Play</button>
+        <button class="sim-btn-ref" onclick="tdCtrl('dl','step')">⏭ Step</button>
+        <button class="sim-btn-ref red" onclick="tdCtrl('dl','reset')">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FLIP-FLOPS ══ -->
+<section id="flipflops" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white text-lg shadow-lg">⚡</div>
+    <div><span class="badge-pill" style="background:rgba(168,85,247,.12);color:#a855f7;border-color:rgba(168,85,247,.28)">Flip-Flops</span><h2 class="text-2xl font-bold dark:text-white">Edge-Triggered Flip-Flops</h2></div>
+  </div>
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab5('ff','sr',this)">SR FF</button>
+    <button class="u5tab" onclick="tab5('ff','jk',this)">JK FF</button>
+    <button class="u5tab" onclick="tab5('ff','d',this)">D FF</button>
+    <button class="u5tab" onclick="tab5('ff','t',this)">T FF</button>
+  </div>
+
+  <!-- SR FF -->
+  <div id="ff-sr" class="u5tb on space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">SR Flip-Flop — Edge-Triggered Symbol</h4>
+        <svg class="circuit-svg" viewBox="0 0 480 200" id="srffSVG" aria-label="SR Flip-Flop">
+          <rect x="160" y="30" width="140" height="140" rx="8" class="g-body" style="stroke-width:2.5"/>
+          <text x="230" y="88" text-anchor="middle" style="font-family:'Courier New';font-size:15px;font-weight:800;fill:#4f8ef7">SR</text>
+          <text x="230" y="108" text-anchor="middle" style="font-family:'Courier New';font-size:13px;fill:#94a3b8">FF</text>
+          <text x="168" y="65" class="io-label">S</text><text x="168" y="105" class="io-label" style="font-size:10px">CLK</text><text x="168" y="145" class="io-label">R</text>
+          <text x="292" y="65" class="io-label">Q</text><text x="292" y="145" class="io-label">Q̄</text>
+          <polygon points="160,96 160,112 174,104" fill="#a855f7" opacity=".85"/>
+          <line x1="40" y1="61" x2="160" y2="61" class="wire" id="srffwS"/>
+          <line x1="40" y1="101" x2="160" y2="101" class="wire" id="srffwCLK" style="stroke:#a855f7"/>
+          <line x1="40" y1="141" x2="160" y2="141" class="wire" id="srffwR"/>
+          <line x1="300" y1="61" x2="440" y2="61" class="wire" id="srffwQ"/>
+          <line x1="300" y1="141" x2="440" y2="141" class="wire" id="srffwQb"/>
+          <rect id="srffSpad" x="8" y="50" width="32" height="22" rx="5" class="in-pad" onclick="srffSld('S')" style="cursor:pointer"/>
+          <text id="srffSval" x="24" y="65" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none">S=0</text>
+          <rect id="srffRpad" x="8" y="130" width="32" height="22" rx="5" class="in-pad" onclick="srffSld('R')" style="cursor:pointer"/>
+          <text id="srffRval" x="24" y="145" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none">R=0</text>
+          <rect id="srffQpad" x="400" y="50" width="32" height="22" rx="5" class="out-pad"/>
+          <text id="srffQtxt" x="416" y="65" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;fill:#fff;pointer-events:none">Q=0</text>
+          <rect id="srffQbpad" x="400" y="130" width="32" height="22" rx="5" class="out-pad hi"/>
+          <text id="srffQbtxt" x="416" y="145" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;fill:#fff;pointer-events:none">Q̄=1</text>
+          <text x="8" y="97" class="io-label" style="font-size:9px;fill:#a855f7">CLK</text>
+        </svg>
+        <div class="flex flex-wrap items-center gap-3 mt-3">
+          <label class="ff-inputs"><span class="text-sm text-slate-400">S</span><input type="range" min="0" max="1" value="0" class="slider" id="srffS" oninput="srffUpdate()"/><span class="inp-val" id="srffSv">0</span></label>
+          <label class="ff-inputs"><span class="text-sm text-slate-400">R</span><input type="range" min="0" max="1" value="0" class="slider" id="srffR" oninput="srffUpdate()"/><span class="inp-val" id="srffRv">0</span></label>
+          <button class="sim-btn-ref clk" onclick="srffClk()">⚡ CLK Pulse</button>
+        </div>
+        <div class="flex items-center gap-4 mt-3">
+          <div class="state-box"><span class="s-label">Q now</span><span class="s-val" id="srffQd">0</span></div>
+          <span class="text-slate-500 text-xl">→</span>
+          <div class="state-box hl"><span class="s-label">Q next</span><span class="s-val" id="srffQnd">0</span></div>
+        </div>
+        <div class="sim-status mt-3" id="srffStat">Set S, R then click CLK Pulse.</div>
+        <div class="sim-explain mt-2" id="srffExp">SR FF: outputs only change on the active clock edge. Constraint: S·R = 0.</div>
+        <canvas id="srffTD" class="t-canvas mt-3" height="140"></canvas>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">📋 SR Flip-Flop</h4>
+        <table class="tt"><thead><tr><th>S</th><th>R</th><th>Q(n+1)</th><th>Action</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>Q(n)</td><td><span class="badge H">Hold</span></td></tr>
+          <tr><td>0</td><td>1</td><td class="res">0</td><td><span class="badge R">Reset</span></td></tr>
+          <tr><td>1</td><td>0</td><td class="set">1</td><td><span class="badge S">Set</span></td></tr>
+          <tr><td>1</td><td>1</td><td class="inv">?</td><td><span class="badge I">Invalid</span></td></tr>
+        </tbody></table>
+        <div class="eq-box">Q(n+1) = S + R̄·Q<br><small>where S·R = 0</small></div>
+        <h5 class="text-xs font-bold text-slate-500 uppercase mt-3">Excitation Table</h5>
+        <table class="tt"><thead><tr><th>Q(n)</th><th>Q(n+1)</th><th>S</th><th>R</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>0</td><td>×</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>×</td><td>0</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JK FF -->
+  <div id="ff-jk" class="u5tb space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">JK Flip-Flop — Gate-Level (NAND implementation)</h4>
+        <svg id="jkSVG" class="circuit-svg" viewBox="0 0 580 260" aria-label="JK Flip-Flop" style="min-height:240px">
+          <!-- Input labels -->
+          <text x="10" y="30" class="io-label" style="font-size:13px;fill:#4f8ef7;font-weight:800">J</text>
+          <text x="10" y="170" class="io-label" style="font-size:13px;fill:#a855f7;font-weight:800">K</text>
+          <text x="10" y="105" class="io-label" style="font-size:11px;fill:#22d3ee;font-weight:800">CLK</text>
+          <!-- Input pads -->
+          <rect id="jkJpad" x="8" y="35" width="52" height="28" rx="6" class="in-pad" onclick="jkToggle('J')" style="cursor:pointer"/>
+          <text id="jkJval" x="34" y="54" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">J=0</text>
+          <rect id="jkKpad" x="8" y="165" width="52" height="28" rx="6" class="in-pad" onclick="jkToggle('K')" style="cursor:pointer"/>
+          <text id="jkKval" x="34" y="184" text-anchor="middle" class="io-label" style="font-size:12px;font-weight:800;pointer-events:none">K=0</text>
+          <rect id="jkCpad" x="8" y="108" width="60" height="26" rx="6" class="in-pad" onclick="jkClkPulse()" style="cursor:pointer;stroke:#22d3ee"/>
+          <text x="38" y="125" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none;fill:#22d3ee">CLK ↑</text>
+          <!-- Steering NAND1 -->
+          <g id="jkN1" class="gate">
+            <path d="M120,22 L120,90 Q170,90 170,56 Q170,22 120,22Z" class="g-body"/>
+            <circle cx="177" cy="56" r="7" class="g-bubble"/>
+            <text x="142" y="60" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="120" y1="34" x2="98" y2="34" class="wire" id="jkN1i1"/>
+            <line x1="120" y1="56" x2="98" y2="56" class="wire" id="jkN1i2"/>
+            <line x1="120" y1="78" x2="98" y2="78" class="wire" id="jkN1i3"/>
+          </g>
+          <!-- Steering NAND2 -->
+          <g id="jkN2" class="gate">
+            <path d="M120,168 L120,236 Q170,236 170,202 Q170,168 120,168Z" class="g-body"/>
+            <circle cx="177" cy="202" r="7" class="g-bubble"/>
+            <text x="142" y="206" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="120" y1="180" x2="98" y2="180" class="wire" id="jkN2i1"/>
+            <line x1="120" y1="202" x2="98" y2="202" class="wire" id="jkN2i2"/>
+            <line x1="120" y1="224" x2="98" y2="224" class="wire" id="jkN2i3"/>
+          </g>
+          <line x1="60" y1="49" x2="80" y2="49" class="wire" id="jkwJ1"/>
+          <line x1="80" y1="49" x2="80" y2="34" class="wire" id="jkwJ2"/>
+          <line x1="80" y1="34" x2="98" y2="34" class="wire" id="jkwJ3"/>
+          <line x1="68" y1="121" x2="88" y2="121" class="wire" id="jkwC1" style="stroke:#22d3ee"/>
+          <line x1="88" y1="121" x2="88" y2="56" class="wire" id="jkwC2" style="stroke:#22d3ee"/>
+          <line x1="88" y1="56" x2="98" y2="56" class="wire" id="jkwC3" style="stroke:#22d3ee"/>
+          <line x1="88" y1="121" x2="88" y2="202" class="wire" id="jkwC4" style="stroke:#22d3ee"/>
+          <line x1="88" y1="202" x2="98" y2="202" class="wire" id="jkwC5" style="stroke:#22d3ee"/>
+          <line x1="60" y1="179" x2="78" y2="179" class="wire" id="jkwK1"/>
+          <line x1="78" y1="179" x2="78" y2="224" class="wire" id="jkwK2"/>
+          <line x1="78" y1="224" x2="98" y2="224" class="wire" id="jkwK3"/>
+          <!-- SR NAND latch NAND3 -->
+          <g id="jkN3" class="gate">
+            <path d="M260,35 L260,95 Q308,95 308,65 Q308,35 260,35Z" class="g-body"/>
+            <circle cx="315" cy="65" r="7" class="g-bubble"/>
+            <text x="282" y="69" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="260" y1="47" x2="232" y2="47" class="wire" id="jkN3i1"/>
+            <line x1="260" y1="83" x2="232" y2="83" class="wire" id="jkN3i2"/>
+          </g>
+          <!-- SR NAND latch NAND4 -->
+          <g id="jkN4" class="gate">
+            <path d="M260,163 L260,223 Q308,223 308,193 Q308,163 260,163Z" class="g-body"/>
+            <circle cx="315" cy="193" r="7" class="g-bubble"/>
+            <text x="282" y="197" text-anchor="middle" class="g-text" style="font-size:8px">NAND</text>
+            <line x1="260" y1="175" x2="232" y2="175" class="wire" id="jkN4i1"/>
+            <line x1="260" y1="211" x2="232" y2="211" class="wire" id="jkN4i2"/>
+          </g>
+          <line x1="184" y1="56" x2="210" y2="56" class="wire" id="jkwSbar"/>
+          <line x1="210" y1="56" x2="210" y2="47" class="wire"/>
+          <line x1="210" y1="47" x2="232" y2="47" class="wire"/>
+          <line x1="184" y1="202" x2="212" y2="202" class="wire" id="jkwRbar"/>
+          <line x1="212" y1="202" x2="212" y2="211" class="wire"/>
+          <line x1="212" y1="211" x2="232" y2="211" class="wire"/>
+          <!-- Cross-coupling inside SR latch -->
+          <line x1="232" y1="83" x2="220" y2="83" class="wire" id="jkN3cross"/>
+          <line x1="220" y1="83" x2="220" y2="175" class="wire" id="jkN3crossV"/>
+          <line x1="220" y1="175" x2="232" y2="175" class="wire"/>
+        </svg>
+        <div class="flex flex-wrap items-center gap-3 mt-3">
+          <label class="ff-inputs"><span class="text-sm text-slate-400">J</span><input type="range" min="0" max="1" value="0" class="slider" id="jkJ" oninput="jkUpdate()"/><span class="inp-val" id="jkJv">0</span></label>
+          <label class="ff-inputs"><span class="text-sm text-slate-400">K</span><input type="range" min="0" max="1" value="0" class="slider" id="jkK" oninput="jkUpdate()"/><span class="inp-val" id="jkKv">0</span></label>
+          <button class="sim-btn-ref clk" onclick="jkClkPulse()">⚡ CLK Pulse</button>
+        </div>
+        <div class="flex items-center gap-4 mt-3">
+          <div class="state-box"><span class="s-label">Q now</span><span class="s-val" id="jkQd">0</span></div>
+          <span class="text-slate-500 text-xl">→</span>
+          <div class="state-box hl"><span class="s-label">Q next</span><span class="s-val" id="jkQnd">0</span></div>
+        </div>
+        <div class="sim-status mt-3" id="jkStat">Set J, K then click CLK Pulse.</div>
+        <div class="sim-explain mt-2" id="jkExp">JK FF: J=K=1 causes Toggle (no invalid state). Use CLK Pulse to trigger.</div>
+        <canvas id="jkTD" class="t-canvas mt-3" height="140"></canvas>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">📋 JK Flip-Flop</h4>
+        <table class="tt"><thead><tr><th>J</th><th>K</th><th>Q(n+1)</th><th>Action</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>Q(n)</td><td><span class="badge H">Hold</span></td></tr>
+          <tr><td>0</td><td>1</td><td class="res">0</td><td><span class="badge R">Reset</span></td></tr>
+          <tr><td>1</td><td>0</td><td class="set">1</td><td><span class="badge S">Set</span></td></tr>
+          <tr><td>1</td><td>1</td><td class="tog">Q'(n)</td><td><span class="badge T">Toggle</span></td></tr>
+        </tbody></table>
+        <div class="eq-box">Q(n+1) = J·Q'(n) + K'·Q(n)</div>
+        <div class="warn-box">⚡ Race-Around: With J=K=1 and long clock pulse HIGH, Q toggles multiple times. Fixed by Master-Slave or edge-triggering.</div>
+        <h5 class="text-xs font-bold text-slate-500 uppercase mt-3">Excitation Table</h5>
+        <table class="tt"><thead><tr><th>Q(n)</th><th>Q(n+1)</th><th>J</th><th>K</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>0</td><td>×</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td>×</td></tr>
+          <tr><td>1</td><td>0</td><td>×</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>×</td><td>0</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- D FF -->
+  <div id="ff-d" class="u5tb space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">D Flip-Flop — Gate Level (D Latch + clock edge detector)</h4>
+        <svg id="dffSVG" class="circuit-svg" viewBox="0 0 480 200" aria-label="D Flip-Flop">
+          <rect x="160" y="30" width="140" height="140" rx="8" class="g-body" style="stroke-width:2.5"/>
+          <text x="230" y="88" text-anchor="middle" style="font-family:'Courier New';font-size:15px;font-weight:800;fill:#4f8ef7">D</text>
+          <text x="230" y="108" text-anchor="middle" style="font-family:'Courier New';font-size:13px;fill:#94a3b8">FF</text>
+          <text x="168" y="70" class="io-label">D</text>
+          <text x="168" y="108" class="io-label" style="font-size:10px">CLK</text>
+          <text x="168" y="148" class="io-label">Rst</text>
+          <text x="292" y="70" class="io-label">Q</text>
+          <text x="292" y="148" class="io-label">Q̄</text>
+          <polygon points="160,99 160,115 174,107" fill="#a855f7" opacity=".85"/>
+          <line x1="40" y1="66" x2="160" y2="66" class="wire" id="dffwD"/>
+          <line x1="40" y1="106" x2="160" y2="106" class="wire" style="stroke:#a855f7"/>
+          <line x1="300" y1="66" x2="440" y2="66" class="wire" id="dffwQ"/>
+          <line x1="300" y1="144" x2="440" y2="144" class="wire" id="dffwQb"/>
+          <rect id="dffDpad" x="8" y="55" width="32" height="22" rx="5" class="in-pad" onclick="dffToggle()" style="cursor:pointer"/>
+          <text id="dffDval" x="24" y="70" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none">D=0</text>
+          <rect x="8" y="130" width="32" height="22" rx="5" class="in-pad inv" onclick="dffRst()" style="cursor:pointer"/>
+          <text x="24" y="145" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none;fill:#ef4444">RST</text>
+          <rect id="dffQpad" x="400" y="55" width="32" height="22" rx="5" class="out-pad"/>
+          <text id="dffQtxt" x="416" y="70" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;fill:#fff;pointer-events:none">Q=0</text>
+          <rect id="dffQbpad" x="400" y="133" width="32" height="22" rx="5" class="out-pad hi"/>
+          <text id="dffQbtxt" x="416" y="148" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;fill:#fff;pointer-events:none">Q̄=1</text>
+          <text x="8" y="50" class="io-label" style="font-size:9px;fill:#4f8ef7">D</text>
+          <text x="8" y="100" class="io-label" style="font-size:9px;fill:#a855f7">CLK</text>
+        </svg>
+        <div class="flex flex-wrap items-center gap-3 mt-3">
+          <label class="ff-inputs"><span class="text-sm text-slate-400">D</span><input type="range" min="0" max="1" value="0" class="slider" id="dffD" oninput="dffUpdate()"/><span class="inp-val" id="dffDv">0</span></label>
+          <button class="sim-btn-ref clk" onclick="dffClk()">⚡ CLK↑</button>
+          <button class="sim-btn-ref red" onclick="dffRst()">RST</button>
+        </div>
+        <div class="flex items-center gap-4 mt-3">
+          <div class="state-box"><span class="s-label">Q now</span><span class="s-val" id="dffQd">0</span></div>
+          <span class="text-slate-500 text-xl">→</span>
+          <div class="state-box hl"><span class="s-label">Q next</span><span class="s-val" id="dffQnd">0</span></div>
+        </div>
+        <div class="sim-status mt-3" id="dffStat">D=0: Next CLK edge → Q=0</div>
+        <div class="sim-explain mt-2" id="dffExp">D FF: Q(n+1)=D. On next rising edge, Q will become D.</div>
+        <canvas id="dffTD" class="t-canvas mt-3" height="120"></canvas>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">📋 D Flip-Flop</h4>
+        <table class="tt"><thead><tr><th>CLK</th><th>D</th><th>Q(n+1)</th></tr></thead><tbody>
+          <tr><td>↑</td><td>0</td><td class="res">0</td></tr>
+          <tr><td>↑</td><td>1</td><td class="set">1</td></tr>
+          <tr><td>No edge</td><td>×</td><td>Q(n)</td></tr>
+        </tbody></table>
+        <div class="eq-box">Q(n+1) = D</div>
+        <div class="note-box">📷 Like a camera shutter — captures D on the exact rising edge. Used in registers, pipeline stages, SRAM.</div>
+        <h5 class="text-xs font-bold text-slate-500 uppercase mt-3">Excitation Table</h5>
+        <table class="tt"><thead><tr><th>Q(n)</th><th>Q(n+1)</th><th>D</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- T FF -->
+  <div id="ff-t" class="u5tb space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">T Flip-Flop — Gate Level (JK with T=J=K)</h4>
+        <svg id="tffSVG" class="circuit-svg" viewBox="0 0 480 200" aria-label="T Flip-Flop">
+          <rect x="160" y="30" width="140" height="140" rx="8" class="g-body" style="stroke-width:2.5"/>
+          <text x="230" y="88" text-anchor="middle" style="font-family:'Courier New';font-size:15px;font-weight:800;fill:#f59e0b">T</text>
+          <text x="230" y="108" text-anchor="middle" style="font-family:'Courier New';font-size:13px;fill:#94a3b8">FF</text>
+          <text x="168" y="65" class="io-label">J=T</text>
+          <text x="168" y="108" class="io-label" style="font-size:10px">CLK</text>
+          <text x="168" y="150" class="io-label">K=T</text>
+          <text x="292" y="65" class="io-label">Q</text>
+          <text x="292" y="150" class="io-label">Q̄</text>
+          <polygon points="160,99 160,115 174,107" fill="#a855f7" opacity=".85"/>
+          <line x1="40" y1="61" x2="160" y2="61" class="wire" id="tffwT"/>
+          <line x1="40" y1="101" x2="160" y2="101" class="wire" style="stroke:#a855f7" id="tffwT2"/>
+          <line x1="40" y1="146" x2="160" y2="146" class="wire" id="tffwK2"/>
+          <line x1="300" y1="61" x2="440" y2="61" class="wire" id="tffwQ"/>
+          <line x1="300" y1="146" x2="440" y2="146" class="wire" id="tffwQb"/>
+          <!-- T feeds J and K: split wire -->
+          <line x1="30" y1="61" x2="30" y2="146" class="wire fb" id="tffwJ"/><line x1="30" y1="146" x2="40" y2="146" class="wire" id="tffwK"/>
+          <rect id="tffTpad" x="8" y="50" width="32" height="22" rx="5" class="in-pad" style="cursor:pointer" onclick="tffToggleT()"/>
+          <text id="tffTval" x="24" y="65" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none">T=0</text>
+          <rect id="tffQpad" x="400" y="50" width="32" height="22" rx="5" class="out-pad"/>
+          <text id="tffQtxt" x="416" y="65" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;fill:#fff;pointer-events:none">Q=0</text>
+          <rect id="tffQbpad" x="400" y="135" width="32" height="22" rx="5" class="out-pad hi"/>
+          <text id="tffQbtxt" x="416" y="150" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;fill:#fff;pointer-events:none">Q̄=1</text>
+        </svg>
+        <div class="flex flex-wrap items-center gap-3 mt-3">
+          <label class="ff-inputs"><span class="text-sm text-slate-400">T</span><input type="range" min="0" max="1" value="0" class="slider" id="tffT" oninput="tffUpdate()"/><span class="inp-val" id="tffTv">0</span></label>
+          <button class="sim-btn-ref clk" onclick="tffClk()">⚡ CLK↑</button>
+          <button class="sim-btn-ref red" onclick="tffRst()">↺ Reset</button>
+        </div>
+        <div class="flex items-center gap-4 mt-3">
+          <div class="state-box"><span class="s-label">Q now</span><span class="s-val" id="tffQd">0</span></div>
+          <span class="text-slate-500 text-xl">→</span>
+          <div class="state-box hl"><span class="s-label">Q next</span><span class="s-val" id="tffQnd">0</span></div>
+        </div>
+        <div class="sim-status mt-3" id="tffStat">T=0: Next CLK → Q holds</div>
+        <div class="sim-explain mt-2" id="tffExp">T=0 → Hold mode. Q(n+1)=Q(n). No change on CLK.</div>
+        <canvas id="tffTD" class="t-canvas mt-3" height="120"></canvas>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">📋 T Flip-Flop</h4>
+        <table class="tt"><thead><tr><th>T</th><th>Q(n+1)</th><th>Action</th></tr></thead><tbody>
+          <tr><td>0</td><td>Q(n)</td><td><span class="badge H">Hold</span></td></tr>
+          <tr><td>1</td><td>Q'(n)</td><td><span class="badge T">Toggle ↕</span></td></tr>
+        </tbody></table>
+        <div class="eq-box">Q(n+1) = T ⊕ Q(n)</div>
+        <div class="note-box">🔄 T=1 with repeated CLK makes Q alternate 0→1→0→1... Used in binary counters and frequency dividers.</div>
+        <h5 class="text-xs font-bold text-slate-500 uppercase mt-3">Excitation Table</h5>
+        <table class="tt"><thead><tr><th>Q(n)</th><th>Q(n+1)</th><th>T</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MASTER-SLAVE ══ -->
+<section id="masterslave" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white text-lg shadow-lg">🧠</div>
+    <div><span class="badge-pill" style="background:rgba(236,72,153,.12);color:#ec4899;border-color:rgba(236,72,153,.28)">Advanced</span><h2 class="text-2xl font-bold dark:text-white">Master-Slave JK Flip-Flop</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Solves the race-around condition using two JK FFs in series. Master samples on CLK↑, Slave copies on CLK↓. Output only changes on falling edge.</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-2 circuit-card space-y-4">
+      <h4 class="font-bold text-sm text-slate-200">Master-Slave JK FF — Step-by-Step Animator</h4>
+      <svg id="msSVG" class="circuit-svg" viewBox="0 0 560 220" aria-label="Master-Slave JK FF">
+        <!-- Master FF box -->
+        <rect id="msMaster" x="80" y="40" width="130" height="130" rx="8" class="g-body" style="stroke-width:2.5" fill="var(--gate-fill)"/>
+        <text x="145" y="95" text-anchor="middle" style="font-family:'Courier New';font-size:13px;font-weight:800;fill:#4f8ef7">MASTER</text>
+        <text x="145" y="113" text-anchor="middle" style="font-family:'Courier New';font-size:10px;fill:#64748b">JK FF</text>
+        <text id="msMactive" x="145" y="135" text-anchor="middle" style="font-family:'Segoe UI';font-size:9px;fill:#22c55e;opacity:0">● Active (CLK=1)</text>
+        <!-- Slave FF box -->
+        <rect id="msSlave" x="350" y="40" width="130" height="130" rx="8" class="g-body" style="stroke-width:2.5" fill="var(--gate-fill)"/>
+        <text x="415" y="95" text-anchor="middle" style="font-family:'Courier New';font-size:13px;font-weight:800;fill:#a855f7">SLAVE</text>
+        <text x="415" y="113" text-anchor="middle" style="font-family:'Courier New';font-size:10px;fill:#64748b">JK FF</text>
+        <text id="msSactive" x="415" y="135" text-anchor="middle" style="font-family:'Segoe UI';font-size:9px;fill:#22c55e;opacity:0.2">● Active (CLK=0)</text>
+        <!-- J input -->
+        <rect id="msJpad" x="8" y="55" width="32" height="22" rx="5" class="in-pad" onclick="msToggle('J')" style="cursor:pointer"/>
+        <text id="msJval" x="24" y="70" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none">J=0</text>
+        <!-- K input -->
+        <rect id="msKpad" x="8" y="143" width="32" height="22" rx="5" class="in-pad" onclick="msToggle('K')" style="cursor:pointer"/>
+        <text id="msKval" x="24" y="158" text-anchor="middle" class="io-label" style="font-size:10px;font-weight:800;pointer-events:none">K=0</text>
+        <!-- CLK label -->
+        <text id="msCval" x="145" y="190" text-anchor="middle" class="io-label" style="font-size:10px;fill:#a855f7">CLK=0</text>
+        <!-- Wires J→Master, K→Master -->
+        <line x1="40" y1="66" x2="80" y2="66" class="wire" id="mswJ"/>
+        <line x1="40" y1="154" x2="80" y2="154" class="wire" id="mswK"/>
+        <!-- CLK→Master and CLK→Slave (inverted) -->
+        <line x1="145" y1="200" x2="145" y2="175" class="wire" id="mswC1" style="stroke:#a855f7"/>
+        <line x1="145" y1="175" x2="145" y2="170" class="wire" id="mswC2" style="stroke:#a855f7"/>
+        <line x1="145" y1="175" x2="415" y2="175" class="wire fb" id="mswC3" style="stroke:#a855f7;stroke-dasharray:5,3"/>
+        <line x1="415" y1="175" x2="415" y2="170" class="wire" id="mswC4" style="stroke:#a855f7"/>
+        <!-- Master Q→Slave input -->
+        <line x1="210" y1="100" x2="350" y2="100" class="wire" id="msMQ"/>
+        <!-- Slave Q output -->
+        <line x1="480" y1="80" x2="540" y2="80" class="wire" id="msSlaveQ"/>
+        <rect id="msQpad" x="540" y="68" width="12" height="24" rx="4" class="out-pad"/>
+        <text id="msQtxt" x="524" y="79" class="io-label" style="font-size:11px;fill:#22c55e">Q=0</text>
+        <line x1="480" y1="140" x2="540" y2="140" class="wire" id="msSlaveQb"/>
+        <rect id="msQbpad" x="540" y="128" width="12" height="24" rx="4" class="out-pad hi"/>
+        <text id="msQbtxt" x="522" y="140" class="io-label" style="font-size:11px;fill:#a855f7">Q̄=1</text>
+        <!-- Input labels -->
+        <text x="10" y="50" class="io-label" style="font-size:11px;fill:#4f8ef7">J</text>
+        <text x="10" y="138" class="io-label" style="font-size:11px;fill:#a855f7">K</text>
+        <text x="88" y="36" class="io-label" style="font-size:9px;fill:#4f8ef7">Master (CLK=1 active)</text>
+        <text x="355" y="36" class="io-label" style="font-size:9px;fill:#a855f7">Slave (CLK=0 active)</text>
+        <text x="220" y="93" class="io-label" style="font-size:8px;fill:#64748b">Qm→</text>
+        <polygon points="80,101 80,113 88,107" fill="#a855f7" opacity=".7"/>
+        <polygon points="350,101 350,113 358,107" fill="#22c55e" opacity=".4"/>
+      </svg>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="ff-inputs"><span class="text-sm text-slate-400">J</span><input type="range" min="0" max="1" value="0" class="slider" id="msJ" oninput="msUpdate()"/><span class="inp-val" id="msJv">0</span></label>
+        <label class="ff-inputs"><span class="text-sm text-slate-400">K</span><input type="range" min="0" max="1" value="0" class="slider" id="msK" oninput="msUpdate()"/><span class="inp-val" id="msKv">0</span></label>
+        <button class="sim-btn-ref purple" onclick="msEdge('rise')">CLK ↑ Rise</button>
+        <button class="sim-btn-ref" onclick="msEdge('fall')">CLK ↓ Fall</button>
+      </div>
+
+      <div class="space-y-2" id="msSteps">
+        <div class="ms-step" id="msS1"><div class="ms-sn">1</div><div class="ms-txt"><strong>CLK goes HIGH</strong> — Master FF is enabled. Reads J, K, and current Q. Computes next state internally.</div></div>
+        <div class="ms-step" id="msS2"><div class="ms-sn">2</div><div class="ms-txt"><strong>CLK goes LOW</strong> — Master is disabled. Slave is now enabled. Slave copies Master's stored state → Q output updates.</div></div>
+        <div class="ms-step" id="msS3"><div class="ms-sn">3</div><div class="ms-txt"><strong>Race-Around Fixed:</strong> Master and Slave are never active simultaneously. Q cannot feed back while Master is sampling.</div></div>
+      </div>
+    </div>
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">📋 Master-Slave JK</h4>
+      <table class="tt"><thead><tr><th>J</th><th>K</th><th>Qm (CLK↑)</th><th>Q (CLK↓)</th></tr></thead><tbody>
+        <tr><td>0</td><td>0</td><td>No change</td><td>No change</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td class="res">0 (Reset)</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td class="set">1 (Set)</td></tr>
+        <tr><td>1</td><td>1</td><td>Q'</td><td class="tog">Toggle ✅</td></tr>
+      </tbody></table>
+      <div class="eq-box">Q changes on CLK ↓ (falling edge)</div>
+      <div class="note-box">✅ <strong>Race-Around Fixed:</strong> Master and Slave use complementary clock signals — they can never be simultaneously active.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONVERSIONS ══ -->
+<section id="conversions" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-lg shadow-lg">🔧</div>
+    <div><span class="badge-pill" style="background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.28)">Conversions</span><h2 class="text-2xl font-bold dark:text-white">Flip-Flop Conversions</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Convert one flip-flop type to another using excitation tables and K-maps. The key is finding what inputs to drive the existing FF to produce the desired next state.</p>
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button class="conv-btn on" onclick="convSel('srjk',this)">SR → JK</button>
+    <button class="conv-btn" onclick="convSel('jkd',this)">JK → D</button>
+    <button class="conv-btn" onclick="convSel('dt',this)">D → T</button>
+    <button class="conv-btn" onclick="convSel('tjk',this)">T → JK</button>
+  </div>
+
+  <!-- SR → JK -->
+  <div id="conv-srjk" class="conv-panel on">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-slate-200">SR → JK Conversion</h4>
+        <div class="conv-step"><h5>Step 1: JK Excitation Table</h5>
+          <table class="tt"><thead><tr><th>J</th><th>K</th><th>Q(n)</th><th>Q(n+1)</th><th>S needed</th><th>R needed</th></tr></thead><tbody>
+            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>×</td></tr>
+            <tr><td>0</td><td>0</td><td>1</td><td>1</td><td>×</td><td>0</td></tr>
+            <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>×</td></tr>
+            <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+            <tr><td>1</td><td>0</td><td>1</td><td>1</td><td>×</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+          </tbody></table>
+        </div>
+        <div class="conv-step"><h5>Step 2: K-Map for S and R</h5>
+          <div class="grid grid-cols-2 gap-3">
+            <div><div class="text-xs text-slate-500 mb-1">K-map for S (JK→Q(n))</div>
+              <div class="kmap-grid kg-2"><div class="kh">Q\JK</div><div class="kh">00,01</div><div class="kh">10,11</div><div class="kh">0</div><div class="kc">0</div><div class="kc grp">1</div><div class="kh">1</div><div class="kc">0</div><div class="kc">0</div></div>
+              <div class="kmap-res">S = J·Q'</div>
+            </div>
+            <div><div class="text-xs text-slate-500 mb-1">K-map for R</div>
+              <div class="kmap-grid kg-2"><div class="kh">Q\JK</div><div class="kh">00,01</div><div class="kh">10,11</div><div class="kh">0</div><div class="kc">0</div><div class="kc">0</div><div class="kh">1</div><div class="kc">0</div><div class="kc grp2">1</div></div>
+              <div class="kmap-res">R = K·Q</div>
+            </div>
+          </div>
+        </div>
+        <div class="conv-step conv-result"><h5>✅ Result: SR → JK</h5><span class="conv-eq">S = J·Q'</span><span class="conv-eq">R = K·Q</span><p class="text-xs text-slate-400 mt-2">Feed these expressions to the SR FF inputs to make it behave like a JK FF.</p></div>
+      </div>
+      <div class="circuit-card">
+        <h4 class="font-bold text-sm text-slate-200 mb-3">Circuit Diagram</h4>
+        <svg class="circuit-svg" viewBox="0 0 400 200">
+          <!-- SR FF box -->
+          <rect x="170" y="50" width="100" height="100" rx="8" class="g-body" style="stroke-width:2"/>
+          <text x="220" y="98" text-anchor="middle" style="font-family:'Courier New';font-size:12px;font-weight:800;fill:#4f8ef7">SR</text>
+          <text x="220" y="114" text-anchor="middle" style="font-family:'Courier New';font-size:10px;fill:#64748b">FF</text>
+          <text x="178" y="80" class="io-label" style="font-size:10px">S</text><text x="178" y="130" class="io-label" style="font-size:10px">R</text>
+          <text x="265" y="80" class="io-label" style="font-size:10px">Q</text><text x="265" y="130" class="io-label" style="font-size:10px">Q̄</text>
+          <!-- AND gates for S=J·Q', R=K·Q -->
+          <rect x="60" y="58" width="70" height="28" rx="5" class="g-body"/>
+          <text x="95" y="77" text-anchor="middle" class="g-text">J·Q' = S</text>
+          <rect x="60" y="112" width="70" height="28" rx="5" class="g-body"/>
+          <text x="95" y="131" text-anchor="middle" class="g-text">K·Q = R</text>
+          <!-- Wires -->
+          <line x1="130" y1="72" x2="170" y2="72" class="wire hi"/><line x1="130" y1="126" x2="170" y2="126" class="wire hi"/>
+          <line x1="270" y1="75" x2="380" y2="75" class="wire hi"/><line x1="270" y1="125" x2="380" y2="125" class="wire"/>
+          <!-- J, K inputs -->
+          <text x="8" y="66" class="io-label" style="fill:#4f8ef7;font-size:11px">J</text><line x1="20" y1="63" x2="60" y2="63" class="wire hi"/>
+          <text x="8" y="90" class="io-label" style="fill:#22c55e;font-size:9px">Q'→</text>
+          <text x="8" y="120" class="io-label" style="fill:#a855f7;font-size:11px">K</text><line x1="20" y1="117" x2="60" y2="117" class="wire"/>
+          <text x="8" y="140" class="io-label" style="fill:#22c55e;font-size:9px">Q→</text>
+          <text x="342" y="72" class="io-label" style="fill:#22c55e;font-size:11px">Q out</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- JK → D -->
+  <div id="conv-jkd" class="conv-panel">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">JK → D Conversion</h4>
+      <div class="conv-step"><h5>D FF Excitation: Q(n+1) = D always</h5>
+        <table class="tt"><thead><tr><th>D</th><th>Q(n)</th><th>Q(n+1)</th><th>J needed</th><th>K needed</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>×</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td>×</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td><td>1</td><td>×</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td><td>×</td><td>0</td></tr>
+        </tbody></table>
+      </div>
+      <div class="conv-step conv-result"><h5>✅ Result: JK → D</h5><span class="conv-eq">J = D</span><span class="conv-eq">K = D'</span><p class="text-xs text-slate-400 mt-2">Simply connect J=D and K=D̄ (through an inverter). The JK FF then behaves exactly like a D FF.</p></div>
+    </div>
+  </div>
+
+  <!-- D → T -->
+  <div id="conv-dt" class="conv-panel">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">D → T Conversion</h4>
+      <div class="conv-step"><h5>T FF: Q(n+1) = T ⊕ Q(n)</h5>
+        <table class="tt"><thead><tr><th>T</th><th>Q(n)</th><th>Q(n+1)</th><th>D needed</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+        </tbody></table>
+      </div>
+      <div class="conv-step conv-result"><h5>✅ Result: D → T</h5><span class="conv-eq">D = T ⊕ Q</span><p class="text-xs text-slate-400 mt-2">Feed T XOR Q to the D input. The D FF then toggles when T=1 and holds when T=0.</p></div>
+    </div>
+  </div>
+
+  <!-- T → JK -->
+  <div id="conv-tjk" class="conv-panel">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">T → JK Conversion</h4>
+      <div class="conv-step"><h5>Map JK truth table to T input</h5>
+        <table class="tt"><thead><tr><th>J</th><th>K</th><th>Q(n)</th><th>Q(n+1)</th><th>T needed</th></tr></thead><tbody>
+          <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+        </tbody></table>
+      </div>
+      <div class="conv-step conv-result"><h5>✅ Result: T → JK</h5><span class="conv-eq">T = J·Q' + K·Q</span><p class="text-xs text-slate-400 mt-2">Drive T with the XOR-like expression: Set when J=1,Q=0 or K=1,Q=1. This converts T FF to full JK behaviour.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ── Tab switching ── */
+function tab5(group,id,btn){
+  document.querySelectorAll('[id^="'+group+'-"]').forEach(el=>{if(el.classList.contains('u5tb'))el.classList.remove('on');});
+  const t=document.getElementById(group+'-'+id);if(t)t.classList.add('on');
+  if(btn){btn.closest('.u5tab-bar').querySelectorAll('.u5tab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+}
+function convSel(id,btn){
+  document.querySelectorAll('.conv-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('conv-'+id).classList.add('on');
+  document.querySelectorAll('.conv-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+/* ── Colour helpers (dark/light aware) ── */
+function isDark(){return document.documentElement.classList.contains('dark');}
+const C={
+  get green(){return'#22c55e'},get red(){return'#ef4444'},get amber(){return'#f59e0b'},
+  get accent(){return isDark()?'#4f8ef7':'#2563eb'},get accent2(){return isDark()?'#a855f7':'#9333ea'},
+  get txt(){return isDark()?'#94a3b8':'#64748b'},get bg(){return isDark()?'#1c2333':'#ffffff'},
+  get grid(){return isDark()?'rgba(255,255,255,.04)':'rgba(0,0,0,.04)'},
+  get wire0(){return isDark()?'#4b5563':'#9ca3af'},
+  wire(v){return v?this.green:this.wire0}
+};
+
+function setWire(id,hi){const el=document.getElementById(id);if(!el)return;el.style.stroke=hi?C.green:C.wire0;}
+function setWires(ids,hi){ids.forEach(id=>setWire(id,hi));}
+function setFBWire(id,hi,color){const el=document.getElementById(id);if(!el)return;el.style.stroke=color||(hi?C.green:C.wire0);}
+function setNode(id,hi){const el=document.getElementById(id);if(!el)return;el.style.fill=hi?C.green:C.wire0;}
+function setPad(padId,txtId,val,hi){
+  const p=document.getElementById(padId),t=document.getElementById(txtId);
+  if(p){p.classList.toggle('hi',!!hi);p.classList.toggle('inv',false);}
+  if(t&&val)t.textContent=val;
+}
+function setOutPad(padId,txtId,label,hi){
+  const p=document.getElementById(padId),t=document.getElementById(txtId);
+  if(p){p.classList.toggle('hi',!!hi);p.style.fill=hi?C.green:C.wire0;}
+  if(t){t.textContent=label;t.style.fill='#fff';}
+}
+function setGate(id,active){const el=document.getElementById(id);if(!el)return;el.classList.toggle('active',!!active);}
+
+/* ── NOR Latch ── */
+let norState={S:0,R:0,Q:0,Qb:1};
+function togNOR(inp){norState[inp]^=1;norUpdate();}
+function rstNOR(){norState={S:0,R:0,Q:0,Qb:1};norUpdate();}
+function norUpdate(){
+  const{S,R}=norState;let Q=norState.Q,Qb=norState.Qb,state;
+  if(S===1&&R===1){Q=0;Qb=0;state='invalid';}
+  else if(S===0&&R===0){state='hold';}
+  else if(S===1){Q=1;Qb=0;state='set';}
+  else{Q=0;Qb=1;state='reset';}
+  norState.Q=Q;norState.Qb=Qb;
+  setPad('norSpad','norSval','S='+S,S);setPad('norRpad','norRval','R='+R,R);
+  setWires(['wS1','wS2','wS3'],S);setWires(['wR1','wR2','wR3'],R);
+  const qhi=state!=='invalid'&&Q,qbhi=state!=='invalid'&&Qb;
+  setWires(['wQ1'],qhi);setWires(['wQb1'],qbhi);
+  ['wFB1','wFB2','wFB3','wFB4'].forEach(id=>setFBWire(id,Q&&state!=='invalid',Q&&state!=='invalid'?C.green:C.wire0));
+  ['wFB5','wFB6','wFB7','wFB8'].forEach(id=>setFBWire(id,Qb&&state!=='invalid',Qb&&state!=='invalid'?C.green:C.wire0));
+  setNode('norQfbDot',Q&&state!=='invalid');setNode('norQbfbDot',Qb&&state!=='invalid');
+  setGate('norG1',S||state==='invalid');setGate('norG2',R||state==='invalid');
+  if(state==='invalid'){setOutPad('norQpad','norQtxt','Q=?',false);document.getElementById('norQpad').style.fill=C.amber;setOutPad('norQbpad','norQbtxt','Q̄=?',false);document.getElementById('norQbpad').style.fill=C.amber;}
+  else{setOutPad('norQpad','norQtxt','Q='+Q,Q);setOutPad('norQbpad','norQbtxt','Q̄='+Qb,Qb);}
+  ['00','01','10','11'].forEach(k=>{const r=document.getElementById('norRow'+k);if(r)r.classList.toggle('hl',k===S+''+R);});
+  const msgs={hold:'State: HOLD — Q retains previous value',set:'State: SET — Q=1, Q̄=0',reset:'State: RESET — Q=0, Q̄=1',invalid:'⚠️ INVALID STATE — S=R=1 forbidden!'};
+  const exps={hold:'S=R=0: Cross-feedback maintains previous state. Q stays at '+Q+'.',set:'S=1,R=0: Top NOR forced Q̄=0. Bottom NOR: Q=1. Stable.',reset:'S=0,R=1: Bottom NOR forced Q=0. Top NOR: Q̄=1. Stable.',invalid:'S=R=1: Both NOR outputs forced to 0. Race condition when inputs return to 0,0!'};
+  const st=document.getElementById('norStat'),ex=document.getElementById('norExp');
+  st.textContent=msgs[state];st.className='sim-status'+(state==='invalid'?' warn':state==='hold'?'':' ok');ex.textContent=exps[state];
+}
+
+/* ── NAND Latch ── */
+let nandState={S:1,R:1,Q:1,Qb:0};
+function togNAND(inp){nandState[inp]^=1;nandUpdate();}
+function rstNAND(){nandState={S:1,R:1,Q:1,Qb:0};nandUpdate();}
+function nandUpdate(){
+  const{S,R}=nandState;let Q=nandState.Q,Qb=nandState.Qb,state;
+  if(S===0&&R===0){Q=1;Qb=1;state='invalid';}
+  else if(S===0&&R===1){Q=1;Qb=0;state='set';}
+  else if(S===1&&R===0){Q=0;Qb=1;state='reset';}
+  else{state='hold';}
+  nandState.Q=Q;nandState.Qb=Qb;
+  setPad('nandSpad','nandSval','S̄='+S,S===0);setPad('nandRpad','nandRval','R̄='+R,R===0);
+  setWires(['ndwS1','ndwS2','ndwS3'],S===1);setWires(['ndwR1','ndwR2','ndwR3'],R===1);
+  const qhi=state!=='invalid'&&Q,qbhi=state!=='invalid'&&Qb;
+  setWires(['ndwQ'],qhi);setWires(['ndwQb'],qbhi);
+  ['ndwFB1','ndwFB2','ndwFB3','ndwFB4'].forEach(id=>setFBWire(id,qhi,qhi?C.green:C.wire0));
+  ['ndwFB5','ndwFB6','ndwFB7','ndwFB8'].forEach(id=>setFBWire(id,qbhi,qbhi?C.green:C.wire0));
+  setNode('ndQfbDot',qhi);setNode('ndQbfbDot',qbhi);
+  setGate('nandG1',S===0);setGate('nandG2',R===0);
+  if(state==='invalid'){setOutPad('nandQpad','nandQtxt','Q=?',false);document.getElementById('nandQpad').style.fill=C.amber;setOutPad('nandQbpad','nandQbtxt','Q̄=?',false);document.getElementById('nandQbpad').style.fill=C.amber;}
+  else{setOutPad('nandQpad','nandQtxt','Q='+Q,Q);setOutPad('nandQbpad','nandQbtxt','Q̄='+Qb,Qb);}
+  const msgs={hold:'HOLD',set:'SET (S̄=0 active)',reset:'RESET (R̄=0 active)',invalid:'⚠️ INVALID (S̄=R̄=0)'};
+  const exps={hold:'S̄=R̄=1: Outputs maintained by cross-feedback. Q='+Q+'.',set:'S̄=0 active: Q=1 forced.',reset:'R̄=0 active: Q=0 forced.',invalid:'S̄=R̄=0: Both outputs 1 — invalid! Unpredictable when inputs return to 1,1.'};
+  const st=document.getElementById('nandStat'),ex=document.getElementById('nandExp');
+  st.textContent='State: '+msgs[state];st.className='sim-status'+(state==='invalid'?' warn':state==='hold'?'':' ok');ex.textContent=exps[state];
+}
+
+function srlTTclick(k){
+  document.querySelectorAll('#srlTT tbody tr').forEach((r,i)=>r.classList.toggle('hl',i===['00','01','10','11'].indexOf(k)));
+  const exps={'00':'S=0,R=0 → HOLD: No inputs active. Output stays at previous Q value.','01':'S=0,R=1 → RESET: R=1 forces bottom NOR output (Q) to 0. Q̄=1.','10':'S=1,R=0 → SET: S=1 forces top NOR output (Q̄) to 0. Q=1.','11':'S=R=1 → INVALID: Both NOR outputs forced to 0. Race condition on return to 0,0!'};
+  document.getElementById('srlTTexp').textContent=exps[k]||'';
+}
+</script>
+<script>
+/* ── D Latch ── */
+let dlState={D:0,EN:0,Q:0,Qb:1};
+function togDL(inp){dlState[inp]^=1;dlUpdate();}
+function rstDL(){dlState={D:0,EN:0,Q:0,Qb:1};dlUpdate();}
+function dlUpdate(){
+  const{D,EN}=dlState;let Q=dlState.Q,Qb=dlState.Qb,state;
+  if(EN===1){Q=D;Qb=D?0:1;state=D?'set':'reset';}else{state='hold';}
+  dlState.Q=Q;dlState.Qb=Qb;
+  setPad('dlDpad','dlDval','D='+D,D);setPad('dlENpad','dlENval','EN='+EN,EN);
+  setGate('dlNOT',D&&EN);setGate('dlN1',EN&&D);setGate('dlN2',EN&&!D);setGate('dlN3',Q===1);setGate('dlN4',Qb===1);
+  setWires(['dlwD1','dlwD2','dlwD3','dlwD4','dlwD5','dlwD6'],D);
+  setWires(['dlwEN1','dlwEN2','dlwEN3'],EN);
+  const Sbar=!(D&&EN),Rbar=!((!D)&&EN);
+  setWires(['dlwS1','dlwS2'],!Sbar);setWires(['dlwR1','dlwR2'],!Rbar);
+  setWires(['dlwDb1'],!D&&EN);setWires(['dlwQ'],Q);setWires(['dlwQb'],Qb);
+  ['dlwFB1','dlwFB2','dlwFB3','dlwFB4'].forEach(id=>setFBWire(id,Q,Q?C.green:C.wire0));
+  ['dlwFB5','dlwFB6','dlwFB7','dlwFB8'].forEach(id=>setFBWire(id,Qb,Qb?C.green:C.wire0));
+  setNode('dlQfbDot',Q);setNode('dlQbfbDot',Qb);
+  const enDot=document.getElementById('dlENjDot');if(enDot)enDot.style.fill=EN?C.green:C.wire0;
+  setOutPad('dlQpad','dlQtxt','Q='+Q,Q);setOutPad('dlQbpad','dlQbtxt','Q̄='+Qb,Qb);
+  const msgs={hold:'EN=0 → Latch disabled, Q holds at '+Q,set:'EN=1, D=1 → Transparent: Q=1',reset:'EN=1, D=0 → Transparent: Q=0'};
+  const exps={hold:'EN=0: Both NAND arms output 1. Cross-coupled latch holds state. Q='+Q+'.',set:'EN=1,D=1: NAND1 sees D=1,EN=1 → S̄=0 (Set active). Q=1.',reset:'EN=1,D=0: NAND2 sees D̄=1,EN=1 → R̄=0 (Reset active). Q=0.'};
+  document.getElementById('dlStat').textContent=msgs[state];document.getElementById('dlStat').className='sim-status'+(state==='hold'?'':' ok');
+  document.getElementById('dlExp').textContent=exps[state];
+}
+
+/* ── Timing diagram engine ── */
+const tdState={};
+function tdDraw(canvasId,signals){
+  const canvas=document.getElementById(canvasId);if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width=canvas.offsetWidth||600,H=canvas.height;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle=C.bg;ctx.fillRect(0,0,W,H);
+  const LW=62,RW=16,steps=signals[0].data.length,segW=(W-LW-RW)/steps,rowH=(H-20)/signals.length,startX=LW;
+  ctx.strokeStyle=C.grid;ctx.lineWidth=1;
+  for(let i=0;i<=steps;i++){ctx.beginPath();ctx.moveTo(startX+i*segW,0);ctx.lineTo(startX+i*segW,H);ctx.stroke();}
+  signals.forEach((sig,si)=>{
+    const yBase=10+si*rowH,yHi=yBase+5,yLo=yBase+rowH-10;
+    ctx.fillStyle=sig.color;ctx.font='bold 11px monospace';ctx.textAlign='right';ctx.fillText(sig.label,startX-5,(yHi+yLo)/2+4);ctx.textAlign='left';
+    ctx.beginPath();ctx.strokeStyle=sig.color;ctx.lineWidth=2.5;
+    sig.data.forEach((v,i)=>{
+      const x=startX+i*segW,y=v==='?'?(yHi+yLo)/2:v?yHi:yLo;
+      if(i===0){ctx.moveTo(x,y);return;}
+      const pv=sig.data[i-1],py=pv==='?'?(yHi+yLo)/2:pv?yHi:yLo;
+      if(y!==py){ctx.lineTo(x,py);ctx.lineTo(x,y);}else ctx.lineTo(x,y);
+    });ctx.lineTo(W-RW,signals[si].data[signals[si].data.length-1]?yHi:yLo);ctx.stroke();
+    sig.data.forEach((v,i)=>{if(v==='?'){ctx.fillStyle='rgba(245,158,11,.12)';ctx.fillRect(startX+i*segW,yBase,segW,rowH-5);}});
+  });
+  const st=tdState[canvasId];
+  if(st&&st.step>0&&st.step<=steps){
+    const i=st.step-1;ctx.fillStyle='rgba(79,142,247,.09)';ctx.fillRect(startX+i*segW,0,segW,H);
+    ctx.strokeStyle=C.accent;ctx.lineWidth=1.5;ctx.setLineDash([3,2]);
+    ctx.beginPath();ctx.moveTo(startX+i*segW,0);ctx.lineTo(startX+i*segW,H);ctx.stroke();ctx.setLineDash([]);
+    const note=st.notes&&st.notes[i];
+    if(note){ctx.fillStyle=note.includes('nvalid')?C.amber:C.accent;ctx.font='bold 9px sans-serif';ctx.fillText(note,startX+i*segW+3,12);}
+  }
+}
+const tdDatasets={
+  srl:{canvas:'srlTD',signals:[{label:'S',color:'#4f8ef7',data:[0,1,0,0,0,1,1,0]},{label:'R',color:'#a855f7',data:[0,0,0,1,0,0,1,0]},{label:'Q',color:'#22c55e',data:[0,1,1,0,0,1,'?','?']},{label:'Q̄',color:'#22d3ee',data:[1,0,0,1,1,0,'?','?']}],notes:['Hold','Set','Hold','Reset','Hold','Set','Invalid!','Undef.']},
+  dl:{canvas:'dlTD',signals:[{label:'EN',color:'#a855f7',data:[0,0,1,1,1,0,0,1]},{label:'D',color:'#4f8ef7',data:[0,1,1,0,1,1,0,0]},{label:'Q',color:'#22c55e',data:[0,0,1,0,1,1,1,0]},{label:'Q̄',color:'#22d3ee',data:[1,1,0,1,0,0,0,1]}],notes:['Latch','Latch','Trans=1','Trans=0','Trans=1','Latch','Latch','Trans=0']}
+};
+function tdCtrl(key,action){
+  if(!tdState[key])tdState[key]={step:0,playing:false,interval:null};
+  const s=tdState[key];
+  if(action==='play'){
+    if(s.playing){clearInterval(s.interval);s.playing=false;document.getElementById(key+'TDplay').textContent='▶ Play';}
+    else{s.playing=true;document.getElementById(key+'TDplay').textContent='⏸ Pause';
+      const data=tdDatasets[key];
+      s.interval=setInterval(()=>{s.step=(s.step%data.signals[0].data.length)+1;tdDraw(data.canvas,data.signals);if(s.step>=data.signals[0].data.length){clearInterval(s.interval);s.playing=false;document.getElementById(key+'TDplay').textContent='▶ Play';}},750);}
+  }else if(action==='step'){const data=tdDatasets[key];s.step=(s.step%data.signals[0].data.length)+1;tdDraw(data.canvas,data.signals);}
+  else{clearInterval(s.interval);s.playing=false;s.step=0;document.getElementById(key+'TDplay').textContent='▶ Play';tdDraw(tdDatasets[key].canvas,tdDatasets[key].signals);}
+}
+
+/* ── FF history canvas ── */
+function drawFFHistory(canvasId,history,labels,getters,colors){
+  const canvas=document.getElementById(canvasId);if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width=canvas.offsetWidth||600,H=canvas.height;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle=C.bg;ctx.fillRect(0,0,W,H);
+  if(!history.length){ctx.fillStyle=C.txt;ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('Click "CLK Pulse" to see waveform',W/2,H/2);ctx.textAlign='left';return;}
+  const LW=55,rowH=Math.floor((H-10)/labels.length),segW=Math.min(55,(W-LW-10)/history.length);
+  labels.forEach((lbl,li)=>{
+    const yBase=5+li*rowH,yHi=yBase+6,yLo=yBase+rowH-8;
+    ctx.fillStyle=colors[li];ctx.font='bold 10px monospace';ctx.textAlign='right';ctx.fillText(lbl,LW-4,(yHi+yLo)/2+4);ctx.textAlign='left';
+    const data=history.map(getters[li]);
+    ctx.beginPath();ctx.strokeStyle=colors[li];ctx.lineWidth=2;
+    data.forEach((v,i)=>{
+      const x=LW+i*segW,y=v?yHi:yLo;
+      if(i===0){ctx.moveTo(x,y);return;}
+      const py=data[i-1]?yHi:yLo;if(y!==py){ctx.lineTo(x,py);ctx.lineTo(x,y);}else ctx.lineTo(x,y);
+    });ctx.lineTo(LW+history.length*segW,data[data.length-1]?yHi:yLo);ctx.stroke();
+  });
+}
+
+/* ── SR FF ── */
+let srffQ=0,srffHist=[];
+function srffUpdate(){
+  const S=+document.getElementById('srffS').value,R=+document.getElementById('srffR').value;
+  document.getElementById('srffSv').textContent=S;document.getElementById('srffRv').textContent=R;
+  document.getElementById('srffSval').textContent='S='+S;document.getElementById('srffRval').textContent='R='+R;
+  setPad('srffSpad',null,null,S);setPad('srffRpad',null,null,R);
+  let Qn,state;
+  if(S===1&&R===1){Qn='?';state='invalid';}else if(S===0&&R===0){Qn=srffQ;state='hold';}else if(S===1){Qn=1;state='set';}else{Qn=0;state='reset';}
+  document.getElementById('srffQnd').textContent=Qn;setWire('srffwS',S);setWire('srffwR',R);
+  const msgs={hold:'Hold Q='+srffQ,set:'Set → Q=1',reset:'Reset → Q=0',invalid:'⚠️ Invalid: S·R≠0'};
+  const exps={hold:'S=R=0 → Hold. Q remains '+srffQ+'.',set:'S=1,R=0 → Set. Next CLK: Q←1.',reset:'S=0,R=1 → Reset. Next CLK: Q←0.',invalid:'S=R=1 → INVALID!'};
+  document.getElementById('srffStat').textContent=msgs[state];document.getElementById('srffExp').textContent=exps[state];
+}
+function srffSld(inp){const el=document.getElementById('srff'+inp);if(el){el.value=el.value==='0'?'1':'0';srffUpdate();}}
+function srffClk(){
+  const S=+document.getElementById('srffS').value,R=+document.getElementById('srffR').value;
+  if(S===1&&R===1){document.getElementById('srffStat').textContent='⚠️ Clock blocked: S=R=1!';return;}
+  const prev=srffQ;if(S===1)srffQ=1;else if(R===1)srffQ=0;
+  srffHist.push({S,R,Q:prev,Qn:srffQ});
+  document.getElementById('srffQd').textContent=srffQ;document.getElementById('srffQnd').textContent=srffQ;
+  document.getElementById('srffQd').closest('.state-box').classList.add('flash');
+  setTimeout(()=>document.getElementById('srffQd').closest('.state-box').classList.remove('flash'),500);
+  setOutPad('srffQpad','srffQtxt','Q='+srffQ,srffQ);setOutPad('srffQbpad','srffQbtxt','Q̄='+(srffQ?0:1),!srffQ);
+  setWire('srffwQ',srffQ);setWire('srffwQb',!srffQ);
+  drawFFHistory('srffTD',srffHist,['S','R','Q'],[d=>d.S,d=>d.R,d=>d.Qn],[C.accent,C.red,C.green]);
+  srffUpdate();
+}
+</script>
+<script>
+/* ── JK FF ── */
+let jkQ=0,jkHist=[];
+function jkUpdate(){
+  const J=+document.getElementById('jkJ').value,K=+document.getElementById('jkK').value;
+  document.getElementById('jkJv').textContent=J;document.getElementById('jkKv').textContent=K;
+  document.getElementById('jkJval').textContent='J='+J;document.getElementById('jkKval').textContent='K='+K;
+  setPad('jkJpad',null,null,J);setPad('jkKpad',null,null,K);
+  let Qn,state;
+  if(J===0&&K===0){Qn=jkQ;state='hold';}else if(J===0&&K===1){Qn=0;state='reset';}
+  else if(J===1&&K===0){Qn=1;state='set';}else{Qn=jkQ?0:1;state='toggle';}
+  document.getElementById('jkQnd').textContent=Qn;
+  setWire('jkwJ1',J);setWire('jkwJ2',J);setWire('jkwJ3',J);
+  setWire('jkwK1',K);setWire('jkwK2',K);setWire('jkwK3',K);
+  setGate('jkN1',J&&!K);setGate('jkN2',K&&!J);
+  const msgs={hold:'Hold Q='+jkQ,set:'Set → Q=1',reset:'Reset → Q=0',toggle:'Toggle → Q='+Qn};
+  const exps={hold:'J=K=0 → Hold. Both NAND arms inactive. Q='+jkQ+'.',set:'J=1,K=0 → Set. NAND1 active → Q=1.',reset:'J=0,K=1 → Reset. NAND2 active → Q=0.',toggle:'J=K=1 → Toggle! Q(n+1)=Q̄(n)='+Qn+'. No invalid state!'};
+  document.getElementById('jkStat').textContent=msgs[state];document.getElementById('jkExp').textContent=exps[state];
+}
+function jkToggle(inp){const el=document.getElementById('jk'+inp);if(el){el.value=el.value==='0'?'1':'0';jkUpdate();}}
+function jkClkPulse(){
+  const J=+document.getElementById('jkJ').value,K=+document.getElementById('jkK').value,prev=jkQ;
+  if(J===0&&K===0){}else if(J===0&&K===1)jkQ=0;else if(J===1&&K===0)jkQ=1;else jkQ=jkQ?0:1;
+  jkHist.push({J,K,Q:prev,Qn:jkQ});
+  document.getElementById('jkQd').textContent=jkQ;document.getElementById('jkQnd').textContent=jkQ;
+  document.getElementById('jkQd').closest('.state-box').classList.add('flash');
+  setTimeout(()=>document.getElementById('jkQd').closest('.state-box').classList.remove('flash'),500);
+  setOutPad('jkQpad','jkQtxt','Q='+jkQ,jkQ);setOutPad('jkQbpad','jkQbtxt','Q̄='+(jkQ?0:1),!jkQ);
+  setWire('jkwQ',jkQ);setWire('jkwQb',!jkQ);
+  ['jkwFB1','jkwFB2','jkwFB3','jkwFB4'].forEach(id=>setFBWire(id,jkQ,jkQ?C.green:C.wire0));
+  ['jkwFB8','jkwFB9','jkwFB10','jkwFB11'].forEach(id=>setFBWire(id,!jkQ,!jkQ?C.green:C.wire0));
+  setNode('jkQfbDot',jkQ);setNode('jkQbfbDot',!jkQ);
+  drawFFHistory('jkTD',jkHist,['J','K','Q'],[d=>d.J,d=>d.K,d=>d.Qn],[C.accent2,C.red,C.green]);
+  jkUpdate();
+}
+
+/* ── D FF ── */
+let dffQ=0,dffHist=[];
+function dffUpdate(){
+  const D=+document.getElementById('dffD').value;
+  document.getElementById('dffDv').textContent=D;document.getElementById('dffDval').textContent='D='+D;
+  setPad('dffDpad',null,null,D);document.getElementById('dffQnd').textContent=D;setWire('dffwD',D);
+  document.getElementById('dffStat').textContent='D='+D+': Next CLK edge → Q='+D;
+  document.getElementById('dffExp').textContent='D FF: Q(n+1)=D. On next rising edge, Q will become '+D+'.';
+}
+function dffClk(){
+  const D=+document.getElementById('dffD').value,prev=dffQ;dffQ=D;dffHist.push({D,Q:prev,Qn:dffQ});
+  document.getElementById('dffQd').textContent=dffQ;document.getElementById('dffQnd').textContent=dffQ;
+  document.getElementById('dffQd').closest('.state-box').classList.add('flash');
+  setTimeout(()=>document.getElementById('dffQd').closest('.state-box').classList.remove('flash'),500);
+  setOutPad('dffQpad','dffQtxt','Q='+dffQ,dffQ);setOutPad('dffQbpad','dffQbtxt','Q̄='+(dffQ?0:1),!dffQ);
+  setWire('dffwQ',dffQ);setWire('dffwQb',!dffQ);
+  drawFFHistory('dffTD',dffHist,['D','Q'],[d=>d.D,d=>d.Qn],[C.accent,C.green]);
+  document.getElementById('dffStat').textContent='CLK ↑: D='+D+' captured. Q: '+prev+'→'+dffQ+'.';
+  document.getElementById('dffExp').textContent='Q(n+1)=D='+D+'. Rising edge sampled D. Q is now '+dffQ+'.';
+}
+function dffRst(){dffQ=0;dffHist=[];document.getElementById('dffQd').textContent=0;document.getElementById('dffQnd').textContent=+document.getElementById('dffD').value;setOutPad('dffQpad','dffQtxt','Q=0',false);setOutPad('dffQbpad','dffQbtxt','Q̄=1',true);drawFFHistory('dffTD',dffHist,[],[],[]);dffUpdate();}
+function dffToggle(){const el=document.getElementById('dffD');el.value=el.value==='0'?'1':'0';dffUpdate();}
+
+/* ── T FF ── */
+let tffQ=0,tffHist=[];
+function tffUpdate(){
+  const T=+document.getElementById('tffT').value;
+  document.getElementById('tffTv').textContent=T;document.getElementById('tffTval').textContent='T='+T;
+  setPad('tffTpad',null,null,T);
+  const Qn=T?(tffQ?0:1):tffQ;document.getElementById('tffQnd').textContent=Qn;
+  setWire('tffwT',T);setWire('tffwT2',T);setWire('tffwJ',T);setWire('tffwK',T);setWire('tffwK2',T);
+  document.getElementById('tffStat').textContent=T?'T=1: Next CLK → Q='+Qn+' (toggle from '+tffQ+')':'T=0: Next CLK → Q holds at '+tffQ;
+  document.getElementById('tffExp').textContent=T?'T=1 → Toggle. Q(n+1)=T⊕Q='+Qn+'. Divide-by-2 behaviour.':'T=0 → Hold. Q(n+1)=Q(n)='+tffQ+'.';
+}
+function tffToggleT(){const el=document.getElementById('tffT');el.value=el.value==='0'?'1':'0';tffUpdate();}
+function tffClk(){
+  const T=+document.getElementById('tffT').value,prev=tffQ;tffQ=T?(tffQ?0:1):tffQ;
+  tffHist.push({T,Q:prev,Qn:tffQ});
+  document.getElementById('tffQd').textContent=tffQ;document.getElementById('tffQnd').textContent=tffQ;
+  document.getElementById('tffQd').closest('.state-box').classList.add('flash');
+  setTimeout(()=>document.getElementById('tffQd').closest('.state-box').classList.remove('flash'),500);
+  setOutPad('tffQpad','tffQtxt','Q='+tffQ,tffQ);setOutPad('tffQbpad','tffQbtxt','Q̄='+(tffQ?0:1),!tffQ);
+  setWire('tffwQ',tffQ);setWire('tffwQb',!tffQ);
+  drawFFHistory('tffTD',tffHist,['T','Q'],[d=>d.T,d=>d.Qn],[C.accent2,C.green]);
+  tffUpdate();
+}
+function tffRst(){tffQ=0;tffHist=[];document.getElementById('tffQd').textContent=0;setOutPad('tffQpad','tffQtxt','Q=0',false);setOutPad('tffQbpad','tffQbtxt','Q̄=1',true);drawFFHistory('tffTD',tffHist,[],[],[]);tffUpdate();}
+
+/* ── Master-Slave ── */
+let msState={J:0,K:0,masterQ:0,slaveQ:0,clk:0};
+function msUpdate(){
+  const J=+document.getElementById('msJ').value,K=+document.getElementById('msK').value;
+  document.getElementById('msJv').textContent=J;document.getElementById('msKv').textContent=K;
+  document.getElementById('msJval').textContent='J='+J;document.getElementById('msKval').textContent='K='+K;
+  setPad('msJpad',null,null,J);setPad('msKpad',null,null,K);msState.J=J;msState.K=K;
+}
+function msToggle(inp){const el=document.getElementById('ms'+inp);el.value=el.value==='0'?'1':'0';msUpdate();}
+function msEdge(edge){
+  const{J,K}=msState;
+  if(edge==='rise'){
+    msState.clk=1;const Q=msState.masterQ;
+    if(J===0&&K===0)msState.masterQ=Q;else if(J===0&&K===1)msState.masterQ=0;else if(J===1&&K===0)msState.masterQ=1;else msState.masterQ=Q?0:1;
+    document.getElementById('msCval').textContent='CLK=1';
+    const mm=document.getElementById('msMaster'),ms=document.getElementById('msSlave');
+    if(mm)mm.style.stroke=C.green;if(ms)ms.style.stroke=C.wire0;
+    document.getElementById('msMactive').style.opacity='1';document.getElementById('msSactive').style.opacity='0.2';
+    document.getElementById('msS1').classList.add('on');document.getElementById('msS2').classList.remove('on');document.getElementById('msS3').classList.remove('on');
+  }else{
+    msState.clk=0;msState.slaveQ=msState.masterQ;
+    const Q=msState.slaveQ;
+    document.getElementById('msCval').textContent='CLK=0';
+    const mm=document.getElementById('msMaster'),ms=document.getElementById('msSlave');
+    if(mm)mm.style.stroke=C.wire0;if(ms)ms.style.stroke=C.green;
+    document.getElementById('msMactive').style.opacity='0.2';document.getElementById('msSactive').style.opacity='1';
+    setOutPad('msQpad','msQtxt','Q='+Q,Q);setOutPad('msQbpad','msQbtxt','Q̄='+(Q?0:1),!Q);
+    setWire('msSlaveQ',Q);setWire('msSlaveQb',!Q);
+    document.getElementById('msS2').classList.add('on');document.getElementById('msS1').classList.remove('on');document.getElementById('msS3').classList.add('on');
+  }
+}
+
+/* ── Init ── */
+window.addEventListener('DOMContentLoaded',()=>{
+  norUpdate();nandUpdate();dlUpdate();srffUpdate();jkUpdate();dffUpdate();tffUpdate();msUpdate();
+  Object.keys(tdDatasets).forEach(k=>{tdState[k]={step:0,playing:false,interval:null,notes:tdDatasets[k].notes};tdDraw(tdDatasets[k].canvas,tdDatasets[k].signals);});
+});
+window.addEventListener('resize',()=>{
+  Object.keys(tdDatasets).forEach(k=>tdDraw(tdDatasets[k].canvas,tdDatasets[k].signals));
+  if(srffHist.length)drawFFHistory('srffTD',srffHist,['S','R','Q'],[d=>d.S,d=>d.R,d=>d.Qn],[C.accent,C.red,C.green]);
+  if(jkHist.length)drawFFHistory('jkTD',jkHist,['J','K','Q'],[d=>d.J,d=>d.K,d=>d.Qn],[C.accent2,C.red,C.green]);
+  if(dffHist.length)drawFFHistory('dffTD',dffHist,['D','Q'],[d=>d.D,d=>d.Qn],[C.accent,C.green]);
+  if(tffHist.length)drawFFHistory('tffTD',tffHist,['T','Q'],[d=>d.T,d=>d.Qn],[C.accent2,C.green]);
+});
+</script>
+</body>
+</html>

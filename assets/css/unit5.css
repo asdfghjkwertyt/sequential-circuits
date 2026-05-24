@@ -1,0 +1,361 @@
+/* ============================================================
+   Unit V – Sequential Logic Circuits — Dedicated Styles
+   ============================================================ */
+
+/* ── Internal Tab Navigation ───────────────────────────────── */
+.u5-tab-bar {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.u5-tab-bar::-webkit-scrollbar { display: none; }
+
+.u5-tab {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  background: rgba(148,163,184,0.1);
+  color: #64748b;
+}
+.u5-tab:hover { color: #06b6d4; background: rgba(6,182,212,0.08); }
+.u5-tab.active {
+  background: rgba(6,182,212,0.15);
+  border-color: #06b6d4;
+  color: #06b6d4;
+}
+.dark .u5-tab { color: #94a3b8; background: rgba(51,65,85,0.5); }
+.dark .u5-tab:hover { color: #22d3ee; }
+.dark .u5-tab.active { color: #22d3ee; border-color: #22d3ee; background: rgba(6,182,212,0.12); }
+
+.u5-panel { display: none; animation: u5FadeIn 0.3s ease; }
+.u5-panel.active { display: block; }
+
+@keyframes u5FadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Topic Cards ────────────────────────────────────────────── */
+.u5-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  transition: box-shadow 0.2s;
+}
+.dark .u5-card { background: #0f172a; border-color: #1e293b; }
+.u5-card:hover { box-shadow: 0 4px 20px rgba(6,182,212,0.12); }
+
+.u5-section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* ── Truth / Excitation Tables ──────────────────────────────── */
+.u5-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+}
+.u5-table th {
+  background: rgba(6,182,212,0.12);
+  color: #06b6d4;
+  font-weight: 700;
+  text-align: center;
+  padding: 7px 10px;
+  border: 1px solid rgba(6,182,212,0.2);
+}
+.u5-table td {
+  text-align: center;
+  padding: 5px 8px;
+  border: 1px solid rgba(100,116,139,0.15);
+}
+.u5-table tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+.dark .u5-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+.u5-table td.b1 { color: #22c55e; font-weight: 700; }
+.u5-table td.b0 { color: #94a3b8; }
+.u5-table td.bx { color: #f59e0b; font-weight: 700; }
+.u5-table tr.hl td { background: rgba(6,182,212,0.1) !important; font-weight: 700; }
+
+/* ── Simulator Controls ─────────────────────────────────────── */
+.sim-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid;
+  transition: all 0.2s;
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 40px;
+  touch-action: manipulation;
+}
+.sim-btn-0 { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+.sim-btn-0:hover { background: rgba(239,68,68,0.18); }
+.sim-btn-1 { border-color: #22c55e; color: #22c55e; background: rgba(34,197,94,0.08); }
+.sim-btn-1:hover { background: rgba(34,197,94,0.18); }
+.sim-btn-clk { border-color: #06b6d4; color: #06b6d4; background: rgba(6,182,212,0.08); }
+.sim-btn-clk:hover { background: rgba(6,182,212,0.18); }
+.sim-btn-rst { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.08); }
+
+.sim-toggle {
+  width: 56px; height: 28px;
+  border-radius: 14px;
+  border: 2px solid #cbd5e1;
+  background: #e2e8f0;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s;
+  display: inline-block;
+}
+.sim-toggle.on { background: #22c55e; border-color: #16a34a; }
+.sim-toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  top: 2px; left: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.sim-toggle.on::after { left: 30px; }
+
+/* ── Output LED ─────────────────────────────────────────────── */
+.ff-led {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 3px solid #334155;
+  background: #1e293b;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #475569;
+  transition: all 0.25s;
+  position: relative;
+}
+.ff-led.led-1 {
+  background: #22c55e;
+  border-color: #4ade80;
+  color: white;
+  box-shadow: 0 0 16px rgba(34,197,94,0.7);
+  animation: ledPulse 1.2s ease-in-out infinite;
+}
+.ff-led.led-0 {
+  background: #1e293b;
+  border-color: #334155;
+  color: #475569;
+}
+.ff-led.led-inv {
+  background: #ef4444;
+  border-color: #f87171;
+  color: white;
+  box-shadow: 0 0 16px rgba(239,68,68,0.6);
+}
+.ff-led.led-invalid {
+  background: #dc2626;
+  border-color: #ef4444;
+  color: white;
+  animation: invalidFlash 0.5s ease infinite;
+}
+@keyframes ledPulse {
+  0%,100% { box-shadow: 0 0 10px rgba(34,197,94,0.5); }
+  50%      { box-shadow: 0 0 22px rgba(34,197,94,0.9); }
+}
+@keyframes invalidFlash {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+/* ── SVG Gate Styles ────────────────────────────────────────── */
+.gate-svg { width: 100%; height: auto; overflow: visible; }
+.gate-body { fill: #1e293b; stroke: #06b6d4; stroke-width: 2; }
+.dark .gate-body { fill: #0f172a; }
+.gate-label { fill: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+.gate-wire { stroke: #475569; stroke-width: 1.5; fill: none; }
+.gate-wire.active { stroke: #22c55e; stroke-width: 2.5; animation: wireFlow 0.6s linear infinite; }
+.gate-wire.active-inv { stroke: #ef4444; stroke-width: 2.5; }
+.wire-dot { fill: #475569; }
+.wire-dot.active { fill: #22c55e; }
+.signal-high { fill: #22c55e; stroke: #22c55e; }
+.signal-low  { fill: #ef4444; stroke: #ef4444; }
+.pin-label { fill: #64748b; font-size: 10px; font-family: 'JetBrains Mono', monospace; }
+
+@keyframes wireFlow {
+  from { stroke-dashoffset: 12; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ── Timing Diagram Canvas ──────────────────────────────────── */
+.timing-canvas {
+  background: #020817;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  width: 100%;
+  display: block;
+}
+
+/* ── Characteristic Equation Box ───────────────────────────── */
+.char-eq {
+  background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(168,85,247,0.08));
+  border: 1px solid rgba(6,182,212,0.2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #06b6d4;
+  font-weight: 700;
+}
+.dark .char-eq { border-color: rgba(6,182,212,0.3); color: #22d3ee; }
+
+/* ── K-Map Grid ─────────────────────────────────────────────── */
+.kmap-grid {
+  display: inline-grid;
+  gap: 2px;
+  background: rgba(6,182,212,0.1);
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(6,182,212,0.2);
+}
+.kmap-cell {
+  width: 44px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.2);
+  color: #94a3b8;
+}
+.kmap-cell.k1 { background: rgba(34,197,94,0.2); color: #22c55e; }
+.kmap-cell.kx { background: rgba(245,158,11,0.2); color: #f59e0b; }
+.kmap-cell.k0 { background: rgba(239,68,68,0.1); color: #64748b; }
+.kmap-cell.kh { background: rgba(6,182,212,0.25); color: #06b6d4; } /* header */
+.kmap-loop {
+  border: 2px solid #22c55e;
+  border-radius: 6px;
+  position: absolute;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Beginner Mode Banner ───────────────────────────────────── */
+.beginner-banner {
+  background: linear-gradient(90deg, rgba(6,182,212,0.12), rgba(168,85,247,0.12));
+  border: 1px solid rgba(6,182,212,0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  color: #0891b2;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.dark .beginner-banner { color: #22d3ee; }
+.beginner-only { display: none; }
+body.beginner-mode .beginner-only { display: block; }
+body.beginner-mode .expert-only  { display: none; }
+
+/* ── Master-Slave Animation ─────────────────────────────────── */
+.ms-block {
+  border: 2px solid #334155;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  transition: all 0.4s;
+  background: #0f172a;
+}
+.ms-block.master-active {
+  border-color: #06b6d4;
+  box-shadow: 0 0 16px rgba(6,182,212,0.4);
+  background: rgba(6,182,212,0.1);
+}
+.ms-block.slave-active {
+  border-color: #22c55e;
+  box-shadow: 0 0 16px rgba(34,197,94,0.4);
+  background: rgba(34,197,94,0.1);
+}
+
+/* ── Comparison Table ───────────────────────────────────────── */
+.cmp-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cmp-table th {
+  background: rgba(6,182,212,0.15);
+  color: #06b6d4;
+  padding: 10px 12px;
+  border: 1px solid rgba(6,182,212,0.2);
+  font-weight: 700;
+  text-align: center;
+}
+.cmp-table td {
+  padding: 8px 10px;
+  border: 1px solid rgba(100,116,139,0.15);
+  text-align: center;
+  vertical-align: middle;
+}
+.cmp-table tr:hover td { background: rgba(6,182,212,0.05); }
+.cmp-yes { color: #22c55e; font-weight: 700; }
+.cmp-no  { color: #ef4444; }
+.cmp-partial { color: #f59e0b; }
+
+/* ── Conversion Flowchart ───────────────────────────────────── */
+.conv-step {
+  border: 1px solid rgba(6,182,212,0.25);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  background: rgba(6,182,212,0.05);
+  position: relative;
+}
+.conv-arrow {
+  text-align: center;
+  color: #06b6d4;
+  font-size: 1.2rem;
+  line-height: 1;
+  margin: 4px 0;
+}
+
+/* ── Race Around Warning ────────────────────────────────────── */
+.race-warn {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-left: 3px solid #ef4444;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  color: #ef4444;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .u5-table th, .u5-table td { padding: 4px 5px; font-size: 0.6rem; }
+  .sim-btn { padding: 6px 12px; font-size: 0.72rem; }
+  .ff-led { width: 40px; height: 40px; font-size: 0.95rem; }
+  .u5-tab { padding: 6px 10px; font-size: 0.72rem; }
+}
