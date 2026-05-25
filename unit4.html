@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Unit IV – Number System & Logic Gates | Circuit Lab</title>
+<meta name="description" content="Interactive Unit IV: Number Systems, Binary Arithmetic, Logic Gates, Boolean Algebra, K-Map and more."/>
+<link rel="icon" href="assets/favicon.ico"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{colors:{slate:{950:'#0b0f19'}}}}}</script>
+<style>
+/* ── Exact same CSS vars as unit5.html ── */
+:root{
+  --accent:#4f8ef7;--accent2:#a855f7;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --wire-0:#4b5563;--wire-1:#22c55e;--gate-fill:#1c2333;--gate-str:#60a5fa;--gate-act:#22c55e;
+  --bg-card:#1c2333;--border-c:rgba(255,255,255,0.08);--tr:0.3s cubic-bezier(.4,0,.2,1);
+}
+html.dark{--gate-fill:#1c2333;--gate-str:#60a5fa;--bg-card:#1c2333;--border-c:rgba(255,255,255,.08)}
+html:not(.dark){--wire-0:#9ca3af;--gate-fill:#fff;--gate-str:#3b82f6;--bg-card:#fff;--accent:#2563eb;--accent2:#9333ea;--border-c:rgba(0,0,0,.08)}
+
+.g-body{fill:var(--gate-fill);stroke:var(--gate-str);stroke-width:2.2;transition:stroke .3s,filter .3s}
+.g-bubble{fill:var(--gate-fill);stroke:var(--gate-str);stroke-width:2}
+.g-text{font-family:'Courier New',monospace;font-size:9px;fill:#94a3b8;font-weight:700}
+.wire{fill:none;stroke:var(--wire-0);stroke-width:2.5;stroke-linecap:round;transition:stroke .3s}
+.wire.hi{stroke:var(--wire-1)}.wire.lo{stroke:var(--wire-0)}
+.node-dot{fill:var(--wire-0);transition:fill .3s}.node-dot.hi{fill:var(--wire-1)}
+.io-label{font-family:'Segoe UI',sans-serif;font-size:11px;font-weight:700;fill:#94a3b8}
+.in-pad{fill:var(--bg-card);stroke:var(--border-c);stroke-width:1.5;cursor:pointer;transition:fill .3s}
+.in-pad.hi{fill:rgba(34,197,94,.18);stroke:var(--green)}
+.out-pad{fill:var(--wire-0);transition:fill .3s,filter .3s}
+.out-pad.hi{fill:var(--green);filter:drop-shadow(0 0 6px rgba(34,197,94,.7))}
+
+/* ── Tabs (identical to unit5) ── */
+.u5tab-bar{display:flex;gap:.3rem;flex-wrap:wrap;border-bottom:2px solid rgba(255,255,255,.08);margin-bottom:1.2rem}
+.u5tab{background:none;border:none;border-bottom:3px solid transparent;padding:.5rem 1rem;color:#64748b;cursor:pointer;font-size:.85rem;font-weight:600;border-radius:6px 6px 0 0;transition:all .3s;margin-bottom:-2px}
+.u5tab:hover{color:#4f8ef7}
+.u5tab.on{color:#4f8ef7;border-bottom-color:#4f8ef7;background:rgba(79,142,247,.06)}
+.u5tb{display:none;animation:fadeUp .3s ease}.u5tb.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── Cards identical to unit5 ── */
+.circuit-card{background:rgba(28,35,51,0.65);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.4rem}
+html:not(.dark) .circuit-card{background:rgba(255,255,255,.85);border-color:rgba(0,0,0,.09)}
+.badge-pill{display:inline-block;background:rgba(79,142,247,.12);color:#4f8ef7;border:1px solid rgba(79,142,247,.28);border-radius:99px;padding:.25rem .85rem;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.eq-box{background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:8px;padding:.7rem 1rem;font-family:'Courier New',monospace;font-size:.9rem;margin:.8rem 0;color:#e2e8f0}
+.warn-box{background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.28);border-radius:7px;padding:.6rem .9rem;color:#ef4444;font-size:.83rem;font-weight:600;margin-top:.8rem}
+.note-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);border-radius:7px;padding:.65rem .9rem;font-size:.82rem;color:#94a3b8;margin-top:.8rem}
+.step-card{background:rgba(79,142,247,.05);border:1px solid rgba(79,142,247,.15);border-radius:10px;padding:1rem;font-family:'Courier New',monospace;font-size:.85rem;line-height:1.9;color:#e2e8f0}
+
+/* ── Truth table identical to unit5 ── */
+.tt{width:100%;border-collapse:collapse;font-size:.84rem}
+.tt th{background:rgba(79,142,247,.12);color:#4f8ef7;padding:.5rem .75rem;text-align:center;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}
+.tt td{padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,.06);text-align:center;color:#94a3b8;transition:background .3s}
+.tt tr:hover td,.tt tr.hl td{background:rgba(79,142,247,.09);color:#e2e8f0}
+.set{color:#22c55e;font-weight:700}.res{color:#ef4444;font-weight:700}
+.hld{color:#4f8ef7;font-weight:700}.inv{color:#f59e0b;font-weight:700}
+.badge.S{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);display:inline-block;padding:.12rem .45rem;border-radius:4px;font-size:.72rem;font-weight:700}
+.badge.R{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25);display:inline-block;padding:.12rem .45rem;border-radius:4px;font-size:.72rem;font-weight:700}
+
+/* ── Quiz options identical to unit5 ── */
+.qck-opt{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);color:#e2e8f0;border-radius:7px;padding:.5rem .9rem;font-size:.85rem;cursor:pointer;transition:all .3s}
+.qck-opt:hover{border-color:#4f8ef7;color:#4f8ef7}
+.qck-opt.correct{background:rgba(34,197,94,.14);border-color:#22c55e;color:#22c55e}
+.qck-opt.wrong{background:rgba(239,68,68,.1);border-color:#ef4444;color:#ef4444}
+
+/* ── Sim buttons identical to unit5 ── */
+.sim-btn-ref{background:rgba(79,142,247,.11);border:1.5px solid rgba(79,142,247,.28);color:#4f8ef7;border-radius:7px;padding:.42rem .95rem;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .3s}
+.sim-btn-ref:hover{background:rgba(79,142,247,.22);transform:translateY(-1px)}
+.sim-btn-ref.red{background:rgba(239,68,68,.1)!important;border-color:rgba(239,68,68,.3)!important;color:#ef4444!important}
+.sim-btn-ref.purple{background:rgba(168,85,247,.12)!important;border-color:rgba(168,85,247,.3)!important;color:#a855f7!important}
+.sim-btn-ref.grn{background:rgba(34,197,94,.11)!important;border-color:rgba(34,197,94,.3)!important;color:#22c55e!important}
+
+/* ── Sim status ── */
+.sim-status{padding:.5rem .9rem;border-radius:7px;font-size:.85rem;font-weight:600;transition:all .3s;border:1px solid;background:rgba(79,142,247,.08);border-color:rgba(79,142,247,.22);color:#4f8ef7}
+.sim-explain{padding:.65rem .9rem;background:rgba(255,255,255,.04);border-radius:7px;border-left:3px solid var(--accent);font-size:.82rem;color:#94a3b8;line-height:1.55}
+
+/* ── IO pad buttons ── */
+.io-btn{min-width:52px;padding:.3rem .7rem;border-radius:7px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#94a3b8;cursor:pointer;font-weight:700;font-size:.9rem;transition:all .2s;text-align:center}
+.io-btn:hover{border-color:#4f8ef7;color:#4f8ef7}
+.io-btn.hi{background:rgba(34,197,94,.15);border-color:#22c55e;color:#22c55e}
+.out-led{width:38px;height:38px;border-radius:50%;border:2.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);transition:all .3s;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#64748b}
+.out-led.hi{background:rgba(34,197,94,.2);border-color:#22c55e;color:#22c55e;box-shadow:0 0 14px rgba(34,197,94,.5)}
+
+/* ── Input field ── */
+.sim-in{width:100%;padding:.6rem 1rem;border-radius:7px;border:1.5px solid rgba(255,255,255,.1);background:rgba(28,35,51,.8);color:#e2e8f0;font-size:.9rem;outline:none;transition:border-color .2s}
+.sim-in:focus{border-color:var(--accent)}
+html:not(.dark) .sim-in{background:#f8fafc;color:#1e293b;border-color:#cbd5e1}
+
+/* ── K-Map cells ── */
+.kmap-cell{width:56px;height:56px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:1.2rem;font-weight:700;border-radius:7px;transition:all .2s;user-select:none;color:#64748b}
+.kmap-cell:hover{border-color:#4f8ef7;color:#4f8ef7}
+.kmap-cell.on{background:rgba(34,197,94,.14);color:#22c55e;border-color:#22c55e}
+.kmap-cell.grp1{background:rgba(79,142,247,.18);border-color:#4f8ef7;color:#4f8ef7}
+html:not(.dark) .kmap-cell{border-color:rgba(0,0,0,.1);color:#64748b}
+
+/* ── Progress bar ── */
+.progress-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4f8ef7,#a855f7);border-radius:2px;transition:width .5s}
+
+/* ── Result box ── */
+.res-box{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:1rem;font-family:'Courier New',monospace;font-size:.88rem;color:#e2e8f0}
+.res-box.purple{background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.2)}
+
+/* ── Gate SVG container ── */
+.circuit-svg{width:100%;display:block;overflow:visible}
+.gate-wrap{display:flex;justify-content:center}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen">
+
+<!-- ══ TOP NAV (identical to unit5.html) ══ -->
+<header class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+  <div class="w-full px-4 sm:px-6 xl:px-10">
+    <div class="flex items-center justify-between h-16">
+      <a href="index.html" class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow">S</div>
+        <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-cyan-600 to-blue-500 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent">Sequential Circuit Lab</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium overflow-x-auto">
+        <a href="#numsys" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Number System</a>
+        <a href="#binarith" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Binary Arith</a>
+        <a href="#codes" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Codes</a>
+        <a href="#complements" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Complements</a>
+        <a href="#gates" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Logic Gates</a>
+        <a href="#boolean" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">Boolean</a>
+        <a href="#soppos" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">SOP/POS</a>
+        <a href="#kmap" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">K-Map</a>
+        <a href="unit5.html" class="ml-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors text-xs font-bold border border-emerald-200 dark:border-emerald-900"><i class="fas fa-atom mr-1"></i>Unit V</a>
+        <a href="index.html" class="ml-1 px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/20 transition-colors text-xs font-bold border border-cyan-200 dark:border-cyan-900"><i class="fas fa-arrow-left mr-1"></i>Lab</a>
+      </nav>
+      <button id="themeToggle" onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <i class="fas fa-sun text-yellow-400 dark:hidden"></i>
+        <i class="fas fa-moon text-blue-400 hidden dark:inline"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full px-4 sm:px-6 xl:px-10 py-8 space-y-12 max-w-screen-2xl mx-auto">
+<!-- ══ HERO ══ -->
+<section id="intro" class="relative bg-gradient-to-br from-amber-500/10 via-cyan-500/5 to-blue-500/10 dark:from-amber-950/30 dark:to-blue-950/20 rounded-3xl p-8 sm:p-12 border border-slate-200/50 dark:border-slate-800/50 overflow-hidden">
+  <div class="absolute inset-0 opacity-5" style="background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,#06b6d4 40px,#06b6d4 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,#06b6d4 40px,#06b6d4 41px)"></div>
+  <div class="relative z-10 max-w-3xl">
+    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-4"><i class="fas fa-hashtag animate-pulse"></i> Unit IV</span>
+    <h1 class="text-3xl sm:text-5xl font-black tracking-tight mb-4 bg-gradient-to-r from-white to-slate-300 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">Number System &amp;<br><span class="text-amber-400">Logic Gates</span></h1>
+    <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed mb-6">Interactive simulations for Number Systems, Binary Arithmetic, Codes, Complements, Logic Gates, Boolean Algebra, SOP/POS, and K-Maps — all with live demos.</p>
+    <div class="flex flex-wrap gap-4 text-sm">
+      <div class="flex items-center gap-2 text-cyan-400"><i class="fas fa-exchange-alt"></i><span>Live Converters</span></div>
+      <div class="flex items-center gap-2 text-amber-400"><i class="fas fa-bolt"></i><span>7 Gate Simulators</span></div>
+      <div class="flex items-center gap-2 text-emerald-400"><i class="fas fa-th"></i><span>4-Variable K-Map</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 1 – NUMBER SYSTEM              -->
+<!-- ══════════════════════════════════════ -->
+<section id="numsys" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg">🔢</div>
+    <div><span class="badge-pill">Topic 1</span><h2 class="text-2xl font-bold dark:text-white">Number System Conversion</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Decimal · Binary · Octal · Hexadecimal — understand each base and convert between them instantly.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab4('ns','theory',this)">Theory</button>
+    <button class="u5tab" onclick="tab4('ns','conv',this)">Converter</button>
+    <button class="u5tab" onclick="tab4('ns','quiz',this)">Quiz</button>
+  </div>
+
+  <!-- Theory Tab -->
+  <div id="ns-theory" class="u5tb on">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div class="circuit-card text-center space-y-2">
+        <div class="text-3xl">🔟</div><h3 class="font-bold text-cyan-400">Decimal</h3>
+        <p class="text-slate-400 text-sm">Base <strong class="text-white">10</strong> · Digits 0–9</p>
+        <div class="eq-box text-sm">Position weight: 10ⁿ</div>
+      </div>
+      <div class="circuit-card text-center space-y-2">
+        <div class="text-3xl">💻</div><h3 class="font-bold text-purple-400">Binary</h3>
+        <p class="text-slate-400 text-sm">Base <strong class="text-white">2</strong> · Digits 0,1</p>
+        <div class="eq-box text-sm">Position weight: 2ⁿ</div>
+      </div>
+      <div class="circuit-card text-center space-y-2">
+        <div class="text-3xl">8️⃣</div><h3 class="font-bold text-amber-400">Octal</h3>
+        <p class="text-slate-400 text-sm">Base <strong class="text-white">8</strong> · Digits 0–7</p>
+        <div class="eq-box text-sm">Position weight: 8ⁿ</div>
+      </div>
+      <div class="circuit-card text-center space-y-2">
+        <div class="text-3xl">🔡</div><h3 class="font-bold text-green-400">Hexadecimal</h3>
+        <p class="text-slate-400 text-sm">Base <strong class="text-white">16</strong> · Digits 0–F</p>
+        <div class="eq-box text-sm">Position weight: 16ⁿ</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-slate-200">Decimal → Binary (Division by 2)</h4>
+        <div class="step-card">Example: 13 → Binary<br>13 ÷ 2 = 6 rem <span class="text-green-400">1</span><br>6  ÷ 2 = 3 rem <span class="text-green-400">0</span><br>3  ÷ 2 = 1 rem <span class="text-green-400">1</span><br>1  ÷ 2 = 0 rem <span class="text-green-400">1</span><br>Read ↑ = <strong class="text-cyan-400">1101₂</strong></div>
+      </div>
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-slate-200">Binary → Decimal (Positional Weights)</h4>
+        <div class="step-card">Example: 1101 → Decimal<br>1×2³ + 1×2² + 0×2¹ + 1×2⁰<br>= 8 + 4 + 0 + 1<br>= <strong class="text-cyan-400">13₁₀</strong></div>
+      </div>
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-slate-200">Binary ↔ Hex (Groups of 4)</h4>
+        <div class="step-card">1111 1111 → Hex<br>1111 = F, 1111 = F<br>= <strong class="text-amber-400">FF₁₆</strong> = 255₁₀</div>
+      </div>
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-slate-200">Binary ↔ Octal (Groups of 3)</h4>
+        <div class="step-card">110 111 → Octal<br>110 = 6, 111 = 7<br>= <strong class="text-purple-400">67₈</strong> = 55₁₀</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Converter Tab -->
+  <div id="ns-conv" class="u5tb">
+    <div class="circuit-card space-y-4">
+      <h4 class="font-bold text-sm text-slate-200">⚡ Live Multi-Base Converter</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div><label class="text-xs text-slate-400 mb-1 block">Enter Number</label><input id="nsIn" class="sim-in font-mono" placeholder="e.g. 255" oninput="doConvert()"/></div>
+        <div><label class="text-xs text-slate-400 mb-1 block">From Base</label>
+          <select id="nsFrom" class="sim-in" onchange="doConvert()">
+            <option value="10">Decimal (Base 10)</option>
+            <option value="2">Binary (Base 2)</option>
+            <option value="8">Octal (Base 8)</option>
+            <option value="16">Hexadecimal (Base 16)</option>
+          </select>
+        </div>
+        <div class="flex items-end"><button class="sim-btn-ref w-full" onclick="doConvert()">Convert All →</button></div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="circuit-card" style="padding:.85rem"><div class="text-xs text-slate-500 mb-1 uppercase tracking-wider">Decimal</div><div class="font-mono font-bold text-xl text-cyan-400" id="nsDec">—</div></div>
+        <div class="circuit-card" style="padding:.85rem"><div class="text-xs text-slate-500 mb-1 uppercase tracking-wider">Binary</div><div class="font-mono font-bold text-lg text-purple-400 break-all" id="nsBin">—</div></div>
+        <div class="circuit-card" style="padding:.85rem"><div class="text-xs text-slate-500 mb-1 uppercase tracking-wider">Octal</div><div class="font-mono font-bold text-xl text-amber-400" id="nsOct">—</div></div>
+        <div class="circuit-card" style="padding:.85rem"><div class="text-xs text-slate-500 mb-1 uppercase tracking-wider">Hexadecimal</div><div class="font-mono font-bold text-xl text-green-400" id="nsHex">—</div></div>
+      </div>
+      <div id="nsSteps" class="step-card hidden"></div>
+    </div>
+  </div>
+
+  <!-- Quiz Tab -->
+  <div id="ns-quiz" class="u5tb">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+      <p class="text-slate-300 font-medium">What is the binary equivalent of decimal 10?</p>
+      <div class="grid grid-cols-2 gap-2" id="nsQ">
+        <button class="qck-opt" onclick="checkQ(this,'nsQ','1010')">A) 1010</button>
+        <button class="qck-opt" onclick="checkQ(this,'nsQ','1010')">B) 1001</button>
+        <button class="qck-opt" onclick="checkQ(this,'nsQ','1010')">C) 1100</button>
+        <button class="qck-opt" onclick="checkQ(this,'nsQ','1010')">D) 0110</button>
+      </div>
+      <div id="nsQfb" class="sim-explain hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 2 – BINARY ARITHMETIC          -->
+<!-- ══════════════════════════════════════ -->
+<section id="binarith" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold shadow-lg">➕</div>
+    <div><span class="badge-pill" style="background:rgba(168,85,247,.12);color:#a855f7;border-color:rgba(168,85,247,.28)">Topic 2</span><h2 class="text-2xl font-bold dark:text-white">Binary Arithmetic</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Binary addition, subtraction, and the powerful 2's complement method used in all modern computers.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab4('ba','rules',this)">Rules</button>
+    <button class="u5tab" onclick="tab4('ba','calc',this)">Calculator</button>
+    <button class="u5tab" onclick="tab4('ba','quiz',this)">Quiz</button>
+  </div>
+
+  <div id="ba-rules" class="u5tb on">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-green-400">Addition Rules</h4>
+        <table class="tt"><thead><tr><th>A</th><th>B</th><th>Sum</th><th>Carry</th></tr></thead>
+        <tbody><tr><td>0</td><td>0</td><td class="hld">0</td><td>0</td></tr><tr><td>0</td><td>1</td><td class="set">1</td><td>0</td></tr><tr><td>1</td><td>0</td><td class="set">1</td><td>0</td></tr><tr><td>1</td><td>1</td><td class="hld">0</td><td class="set">1</td></tr></tbody></table>
+        <div class="step-card">Example: 1011 + 0110<br>&nbsp;&nbsp;1 1 1 &nbsp;&larr; carries<br>&nbsp;&nbsp;1 0 1 1<br>+ 0 1 1 0<br>─────────<br><strong class="text-green-400">1 0 0 0 1</strong> = 17</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-red-400">Subtraction Rules</h4>
+        <table class="tt"><thead><tr><th>A</th><th>B</th><th>Diff</th><th>Borrow</th></tr></thead>
+        <tbody><tr><td>0</td><td>0</td><td class="hld">0</td><td>0</td></tr><tr><td>0</td><td>1</td><td class="set">1</td><td class="res">1</td></tr><tr><td>1</td><td>0</td><td class="set">1</td><td>0</td></tr><tr><td>1</td><td>1</td><td class="hld">0</td><td>0</td></tr></tbody></table>
+        <div class="note-box">When borrowing, the bit becomes 10₂ = 2, then subtract B.</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-cyan-400">2's Complement Subtraction</h4>
+        <div class="step-card">A − B = A + (2's comp of B)<br><br>Steps:<br>1. Find 1's comp of B (flip bits)<br>2. Add 1 → gives 2's comp<br>3. Add result to A<br>4. If carry out → discard it<br>5. Result is positive ✅</div>
+        <div class="note-box">This is how ALL modern CPUs subtract numbers!</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ba-calc" class="u5tb">
+    <div class="circuit-card space-y-4">
+      <h4 class="font-bold text-sm text-slate-200">⚡ Binary Arithmetic Calculator</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div><label class="text-xs text-slate-400 mb-1 block">Binary A</label><input id="baA" class="sim-in font-mono" placeholder="e.g. 1101"/></div>
+        <div><label class="text-xs text-slate-400 mb-1 block">Operation</label>
+          <select id="baOp" class="sim-in">
+            <option value="add">+ Addition</option>
+            <option value="sub">− Subtraction (2's comp)</option>
+          </select></div>
+        <div><label class="text-xs text-slate-400 mb-1 block">Binary B</label><input id="baB" class="sim-in font-mono" placeholder="e.g. 0101"/></div>
+        <div class="flex items-end"><button class="sim-btn-ref purple w-full" onclick="doBinCalc()">Calculate →</button></div>
+      </div>
+      <div id="baResult" class="res-box hidden"></div>
+    </div>
+  </div>
+
+  <div id="ba-quiz" class="u5tb">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+      <p class="text-slate-300 font-medium">What is 1010 + 0101 in binary?</p>
+      <div class="grid grid-cols-2 gap-2" id="baQ">
+        <button class="qck-opt" onclick="checkQ(this,'baQ','1111')">A) 1111</button>
+        <button class="qck-opt" onclick="checkQ(this,'baQ','1111')">B) 10001</button>
+        <button class="qck-opt" onclick="checkQ(this,'baQ','1111')">C) 1110</button>
+        <button class="qck-opt" onclick="checkQ(this,'baQ','1111')">D) 10100</button>
+      </div>
+      <div id="baQfb" class="sim-explain hidden"></div>
+    </div>
+  </div>
+</section>
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 3 – CODES                      -->
+<!-- ══════════════════════════════════════ -->
+<section id="codes" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold shadow-lg">🔡</div>
+    <div><span class="badge-pill" style="background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.28)">Topic 3</span><h2 class="text-2xl font-bold dark:text-white">Digital Codes</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">BCD · Excess-3 · Gray Code — special encoding schemes for digital systems.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab4('cd','theory',this)">Theory</button>
+    <button class="u5tab" onclick="tab4('cd','conv',this)">Converter</button>
+    <button class="u5tab" onclick="tab4('cd','table',this)">Full Table</button>
+    <button class="u5tab" onclick="tab4('cd','quiz',this)">Quiz</button>
+  </div>
+
+  <div id="cd-theory" class="u5tb on">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-cyan-400">BCD (Binary Coded Decimal)</h4>
+        <p class="text-slate-400 text-xs">Each decimal digit (0–9) is stored as its 4-bit binary value. Used in digital clocks and calculators.</p>
+        <div class="step-card">Decimal 39:<br>3 → <span class="text-cyan-400">0011</span><br>9 → <span class="text-cyan-400">1001</span><br>BCD = <strong class="text-white">0011 1001</strong></div>
+        <div class="note-box">⚠️ Codes 1010–1111 are invalid in BCD.</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-purple-400">Excess-3 (XS-3)</h4>
+        <p class="text-slate-400 text-xs">Add 3 (0011₂) to each BCD digit. Self-complementing — complement gives 9's complement automatically.</p>
+        <div class="step-card">Decimal 39:<br>3+3=6 → <span class="text-purple-400">0110</span><br>9+3=12 → <span class="text-purple-400">1100</span><br>XS-3 = <strong class="text-white">0110 1100</strong></div>
+        <div class="note-box">9's complement of XS-3 digit = 1's complement. Very useful for subtraction!</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-green-400">Gray Code</h4>
+        <p class="text-slate-400 text-xs">Only ONE bit changes between consecutive numbers. Used in shaft encoders to avoid reading errors during transitions.</p>
+        <div class="step-card">Binary → Gray:<br>MSB stays same.<br>Each next bit = XOR of<br>adjacent binary bits.<br><br>0011 → <span class="text-green-400">0010</span><br>0100 → <span class="text-green-400">0110</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cd-conv" class="u5tb">
+    <div class="circuit-card space-y-4">
+      <h4 class="font-bold text-sm text-slate-200">⚡ Code Converter</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="sm:col-span-2"><label class="text-xs text-slate-400 mb-1 block">Decimal (0–9 for single digit, 0–99 for two)</label><input id="cdIn" class="sim-in" placeholder="e.g. 7" oninput="doCodeConv()"/></div>
+        <div class="flex items-end"><button class="sim-btn-ref w-full" onclick="doCodeConv()">Convert →</button></div>
+      </div>
+      <div id="cdResult" class="hidden">
+        <table class="tt"><thead><tr><th>Code Type</th><th>Binary Result</th><th>Description</th></tr></thead>
+        <tbody id="cdTbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="cd-table" class="u5tb">
+    <div class="circuit-card overflow-x-auto">
+      <h4 class="font-bold text-sm text-slate-200 mb-3">Comparison Table (Decimal 0–9)</h4>
+      <table class="tt"><thead><tr><th>Decimal</th><th>Binary</th><th>BCD</th><th>Excess-3</th><th>Gray Code</th></tr></thead>
+      <tbody id="cdCompTbody"></tbody></table>
+    </div>
+  </div>
+
+  <div id="cd-quiz" class="u5tb">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+      <p class="text-slate-300 font-medium">The Excess-3 code for decimal 5 is?</p>
+      <div class="grid grid-cols-2 gap-2" id="cdQ">
+        <button class="qck-opt" onclick="checkQ(this,'cdQ','1000')">A) 1000</button>
+        <button class="qck-opt" onclick="checkQ(this,'cdQ','1000')">B) 0101</button>
+        <button class="qck-opt" onclick="checkQ(this,'cdQ','1000')">C) 1010</button>
+        <button class="qck-opt" onclick="checkQ(this,'cdQ','1000')">D) 0111</button>
+      </div>
+      <div id="cdQfb" class="sim-explain hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 4 – COMPLEMENTS               -->
+<!-- ══════════════════════════════════════ -->
+<section id="complements" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold shadow-lg">🔄</div>
+    <div><span class="badge-pill" style="background:rgba(34,197,94,.12);color:#22c55e;border-color:rgba(34,197,94,.28)">Topic 4</span><h2 class="text-2xl font-bold dark:text-white">Complements</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">1's Complement and 2's Complement — the foundation of negative number representation in computers.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab4('cp','theory',this)">Theory</button>
+    <button class="u5tab" onclick="tab4('cp','calc',this)">Calculator</button>
+    <button class="u5tab" onclick="tab4('cp','quiz',this)">Quiz</button>
+  </div>
+
+  <div id="cp-theory" class="u5tb on">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-cyan-400">1's Complement</h4>
+        <p class="text-slate-400 text-xs">Flip every bit: 0 → 1 and 1 → 0. Simple bitwise NOT operation.</p>
+        <div class="step-card">Binary:  &nbsp;1 0 1 1 0 1<br>Flip:    &nbsp;↓ ↓ ↓ ↓ ↓ ↓<br>1's comp: 0 1 0 0 1 0</div>
+        <div class="warn-box">Has two representations of zero: 0000…0 and 1111…1</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-purple-400">2's Complement</h4>
+        <p class="text-slate-400 text-xs">Take 1's complement, then add 1. The standard way computers represent negative numbers.</p>
+        <div class="step-card">Binary:   1 0 1 1 0 1<br>1's comp: 0 1 0 0 1 0<br>Add 1:  +           1<br>──────────────────<br><strong class="text-purple-400">2's comp: 0 1 0 0 1 1</strong></div>
+        <div class="note-box">✅ Only one representation of zero. Used in all CPUs.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cp-calc" class="u5tb">
+    <div class="circuit-card space-y-4">
+      <h4 class="font-bold text-sm text-slate-200">⚡ Complement Calculator</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="sm:col-span-2"><label class="text-xs text-slate-400 mb-1 block">Binary Number</label><input id="cpIn" class="sim-in font-mono" placeholder="e.g. 10110100" oninput="doCompCalc()"/></div>
+        <div class="flex items-end"><button class="sim-btn-ref grn w-full" onclick="doCompCalc()">Calculate →</button></div>
+      </div>
+      <div id="cpResult" class="hidden space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="circuit-card" style="padding:.85rem"><div class="text-xs text-slate-500 mb-1 uppercase tracking-wider">Original</div><div class="font-mono font-bold text-lg text-slate-200" id="cpOrig">—</div></div>
+          <div class="circuit-card" style="padding:.85rem"><div class="text-xs text-slate-500 mb-1 uppercase tracking-wider">1's Complement</div><div class="font-mono font-bold text-lg text-cyan-400" id="cp1s">—</div></div>
+          <div class="circuit-card" style="padding:.85rem"><div class="text-xs text-slate-500 mb-1 uppercase tracking-wider">2's Complement</div><div class="font-mono font-bold text-lg text-purple-400" id="cp2s">—</div></div>
+        </div>
+        <div class="step-card" id="cpSteps"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cp-quiz" class="u5tb">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+      <p class="text-slate-300 font-medium">What is the 2's complement of binary 0110?</p>
+      <div class="grid grid-cols-2 gap-2" id="cpQ">
+        <button class="qck-opt" onclick="checkQ(this,'cpQ','1010')">A) 1010</button>
+        <button class="qck-opt" onclick="checkQ(this,'cpQ','1010')">B) 1001</button>
+        <button class="qck-opt" onclick="checkQ(this,'cpQ','1010')">C) 0110</button>
+        <button class="qck-opt" onclick="checkQ(this,'cpQ','1010')">D) 1100</button>
+      </div>
+      <div id="cpQfb" class="sim-explain hidden"></div>
+    </div>
+  </div>
+</section>
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 5 – LOGIC GATES               -->
+<!-- ══════════════════════════════════════ -->
+<section id="gates" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center text-white font-bold shadow-lg">⚡</div>
+    <div><span class="badge-pill" style="background:rgba(239,68,68,.12);color:#ef4444;border-color:rgba(239,68,68,.28)">Topic 5</span><h2 class="text-2xl font-bold dark:text-white">Logic Gates</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Interactive gate simulators with SVG circuit symbols, toggle inputs, LED output, and live truth tables.</p>
+
+  <div id="gateGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+  <div class="circuit-card space-y-3">
+    <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+    <p class="text-slate-300 font-medium">Which gate outputs 1 ONLY when ALL inputs are 1?</p>
+    <div class="grid grid-cols-2 gap-2" id="lgQ">
+      <button class="qck-opt" onclick="checkQ(this,'lgQ','AND')">A) AND</button>
+      <button class="qck-opt" onclick="checkQ(this,'lgQ','AND')">B) OR</button>
+      <button class="qck-opt" onclick="checkQ(this,'lgQ','AND')">C) XOR</button>
+      <button class="qck-opt" onclick="checkQ(this,'lgQ','AND')">D) NAND</button>
+    </div>
+    <div id="lgQfb" class="sim-explain hidden"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 6 – BOOLEAN ALGEBRA           -->
+<!-- ══════════════════════════════════════ -->
+<section id="boolean" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white font-bold shadow-lg">🧮</div>
+    <div><span class="badge-pill" style="background:rgba(6,182,212,.12);color:#06b6d4;border-color:rgba(6,182,212,.28)">Topic 6</span><h2 class="text-2xl font-bold dark:text-white">Boolean Algebra</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Laws, identities, and simplification techniques for digital logic design.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab4('bl','laws',this)">Laws</button>
+    <button class="u5tab" onclick="tab4('bl','demorgan',this)">De Morgan's</button>
+    <button class="u5tab" onclick="tab4('bl','simplify',this)">Simplification</button>
+    <button class="u5tab" onclick="tab4('bl','quiz',this)">Quiz</button>
+  </div>
+
+  <div id="bl-laws" class="u5tb on">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-cyan-400">Basic Identities</h4>
+        <table class="tt"><thead><tr><th>Law</th><th>AND form</th><th>OR form</th></tr></thead>
+        <tbody>
+          <tr><td class="text-left text-slate-300">Identity</td><td class="hld">A · 1 = A</td><td class="hld">A + 0 = A</td></tr>
+          <tr><td class="text-left text-slate-300">Null</td><td class="res">A · 0 = 0</td><td class="set">A + 1 = 1</td></tr>
+          <tr><td class="text-left text-slate-300">Idempotent</td><td class="hld">A · A = A</td><td class="hld">A + A = A</td></tr>
+          <tr><td class="text-left text-slate-300">Complement</td><td class="res">A · A' = 0</td><td class="set">A + A' = 1</td></tr>
+          <tr><td class="text-left text-slate-300">Involution</td><td colspan="2" class="hld">(A')' = A</td></tr>
+        </tbody></table>
+      </div>
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-purple-400">Algebraic Theorems</h4>
+        <table class="tt"><thead><tr><th>Theorem</th><th>Expression</th></tr></thead>
+        <tbody>
+          <tr><td class="text-left text-slate-300">Commutative</td><td class="hld">A+B = B+A &nbsp; A·B = B·A</td></tr>
+          <tr><td class="text-left text-slate-300">Associative</td><td class="hld">A+(B+C) = (A+B)+C</td></tr>
+          <tr><td class="text-left text-slate-300">Distributive</td><td class="hld">A(B+C) = AB+AC</td></tr>
+          <tr><td class="text-left text-slate-300">Absorption</td><td class="set">A+AB = A</td></tr>
+          <tr><td class="text-left text-slate-300">Consensus</td><td class="hld">AB+A'C+BC = AB+A'C</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="bl-demorgan" class="u5tb">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-red-400">De Morgan's Theorem 1</h4>
+        <div class="eq-box text-lg text-center">(A · B)' = A' + B'</div>
+        <p class="text-slate-400 text-sm">The complement of a product equals the sum of the complements.</p>
+        <div class="step-card">NAND gate truth table confirms this:<br>A=1, B=1: (1·1)' = 0 = 1'+1' = 0+0 = 0 ✓<br>A=1, B=0: (1·0)' = 1 = 1'+0' = 0+1 = 1 ✓</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-red-400">De Morgan's Theorem 2</h4>
+        <div class="eq-box text-lg text-center">(A + B)' = A' · B'</div>
+        <p class="text-slate-400 text-sm">The complement of a sum equals the product of the complements.</p>
+        <div class="step-card">NOR gate truth table confirms this:<br>A=0, B=0: (0+0)' = 1 = 0'·0' = 1·1 = 1 ✓<br>A=1, B=0: (1+0)' = 0 = 1'·0' = 0·1 = 0 ✓</div>
+      </div>
+    </div>
+    <div class="circuit-card mt-4 space-y-2">
+      <h4 class="font-bold text-sm text-amber-400">How to Apply De Morgan's</h4>
+      <ol class="text-sm text-slate-300 space-y-2 list-decimal pl-4">
+        <li>Complement the entire expression</li>
+        <li>Change AND (·) to OR (+) and vice versa</li>
+        <li>Complement each individual variable</li>
+      </ol>
+      <div class="step-card">(A·B·C)' = A' + B' + C'<br>(A+B+C)' = A'·B'·C'</div>
+    </div>
+  </div>
+
+  <div id="bl-simplify" class="u5tb">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-green-400">Example 1: Simplify AB + AB'</h4>
+        <div class="step-card">AB + AB'<br>= A(B + B')&nbsp;&nbsp;&nbsp;[Distributive]<br>= A(1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[B+B' = 1]<br>= <strong class="text-green-400">A</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Identity]</div>
+      </div>
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-green-400">Example 2: Simplify A + A'B</h4>
+        <div class="step-card">A + A'B<br>= (A+A')(A+B)&nbsp;&nbsp;[Distributive]<br>= 1·(A+B)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[A+A'=1]<br>= <strong class="text-green-400">A + B</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Identity]</div>
+      </div>
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-green-400">Example 3: Simplify (A+B)(A+B')</h4>
+        <div class="step-card">(A+B)(A+B')<br>= A·A + A·B' + B·A + B·B'<br>= A + AB' + AB + 0<br>= A + A(B'+B)<br>= A + A·1 = A + A<br>= <strong class="text-green-400">A</strong></div>
+      </div>
+      <div class="circuit-card space-y-2">
+        <h4 class="font-bold text-sm text-green-400">Example 4: Simplify ABC + ABC'</h4>
+        <div class="step-card">ABC + ABC'<br>= AB(C + C')&nbsp;&nbsp;[Distributive]<br>= AB(1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[C+C'=1]<br>= <strong class="text-green-400">AB</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Identity]</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bl-quiz" class="u5tb">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+      <p class="text-slate-300 font-medium">De Morgan's theorem states (A·B)' equals?</p>
+      <div class="grid grid-cols-2 gap-2" id="blQ">
+        <button class="qck-opt" onclick="checkQ(this,'blQ','A\'+B\'')">A) A' + B'</button>
+        <button class="qck-opt" onclick="checkQ(this,'blQ','A\'+B\'')">B) A' · B'</button>
+        <button class="qck-opt" onclick="checkQ(this,'blQ','A\'+B\'')">C) A + B</button>
+        <button class="qck-opt" onclick="checkQ(this,'blQ','A\'+B\'')">D) A · B</button>
+      </div>
+      <div id="blQfb" class="sim-explain hidden"></div>
+    </div>
+  </div>
+</section>
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 7 – SOP / POS                 -->
+<!-- ══════════════════════════════════════ -->
+<section id="soppos" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">📊</div>
+    <div><span class="badge-pill" style="background:rgba(139,92,246,.12);color:#8b5cf6;border-color:rgba(139,92,246,.28)">Topic 7</span><h2 class="text-2xl font-bold dark:text-white">SOP and POS Forms</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">Sum of Products and Product of Sums — two standard forms for any Boolean expression.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab4('sp','theory',this)">Theory</button>
+    <button class="u5tab" onclick="tab4('sp','gen',this)">Generator</button>
+    <button class="u5tab" onclick="tab4('sp','quiz',this)">Quiz</button>
+  </div>
+
+  <div id="sp-theory" class="u5tb on">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-cyan-400">SOP – Sum of Products</h4>
+        <p class="text-slate-400 text-xs">An OR of AND terms. Each AND term is a <strong class="text-white">minterm</strong> (row where F=1).</p>
+        <ol class="text-sm text-slate-300 space-y-1 list-decimal pl-4">
+          <li>List rows where F = <span class="text-green-400 font-bold">1</span></li>
+          <li>For each row, write AND term (A' if bit=0, A if bit=1)</li>
+          <li>OR all terms: <span class="eq-box inline text-sm">F = Σm(...)</span></li>
+        </ol>
+        <div class="step-card">F = 1 at rows m1, m2, m3<br>m1 = A'B &nbsp; m2 = AB' &nbsp; m3 = AB<br>SOP: F = <strong class="text-cyan-400">A'B + AB' + AB</strong></div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-purple-400">POS – Product of Sums</h4>
+        <p class="text-slate-400 text-xs">An AND of OR terms. Each OR term is a <strong class="text-white">maxterm</strong> (row where F=0).</p>
+        <ol class="text-sm text-slate-300 space-y-1 list-decimal pl-4">
+          <li>List rows where F = <span class="text-red-400 font-bold">0</span></li>
+          <li>For each row, write OR term (A if bit=0, A' if bit=1)</li>
+          <li>AND all terms: <span class="eq-box inline text-sm">F = ΠM(...)</span></li>
+        </ol>
+        <div class="step-card">F = 0 at row m0 (A=0,B=0)<br>M0 = (A+B)<br>POS: F = <strong class="text-purple-400">(A+B)</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sp-gen" class="u5tb">
+    <div class="circuit-card space-y-4">
+      <h4 class="font-bold text-sm text-slate-200">⚡ SOP/POS Generator — 2-variable (A, B)</h4>
+      <p class="text-slate-400 text-xs">Click cells in the F column to toggle 0/1, then generate.</p>
+      <div class="overflow-x-auto">
+        <table class="tt w-auto mx-auto">
+          <thead><tr><th>Row</th><th>A</th><th>B</th><th>F (click)</th></tr></thead>
+          <tbody id="spTbody"></tbody>
+        </table>
+      </div>
+      <button class="sim-btn-ref purple" onclick="doSopPos()">Generate SOP &amp; POS →</button>
+      <div id="spResult" class="hidden space-y-3">
+        <div class="res-box"><span class="text-xs text-slate-400 mr-2">SOP:</span><span class="font-mono font-bold text-green-400 text-lg" id="spSOP">—</span></div>
+        <div class="res-box purple"><span class="text-xs text-slate-400 mr-2">POS:</span><span class="font-mono font-bold text-purple-400 text-lg" id="spPOS">—</span></div>
+        <div class="step-card" id="spSteps"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sp-quiz" class="u5tb">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+      <p class="text-slate-300 font-medium">In SOP form, we pick rows where the output F is?</p>
+      <div class="grid grid-cols-2 gap-2" id="spQ">
+        <button class="qck-opt" onclick="checkQ(this,'spQ','1')">A) 1</button>
+        <button class="qck-opt" onclick="checkQ(this,'spQ','1')">B) 0</button>
+        <button class="qck-opt" onclick="checkQ(this,'spQ','1')">C) Don't care</button>
+        <button class="qck-opt" onclick="checkQ(this,'spQ','1')">D) Both</button>
+      </div>
+      <div id="spQfb" class="sim-explain hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SECTION 8 – K-MAP                     -->
+<!-- ══════════════════════════════════════ -->
+<section id="kmap" class="space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow-lg">🗺</div>
+    <div><span class="badge-pill" style="background:rgba(34,197,94,.12);color:#22c55e;border-color:rgba(34,197,94,.28)">Topic 8</span><h2 class="text-2xl font-bold dark:text-white">Karnaugh Map (K-Map)</h2></div>
+  </div>
+  <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">A visual method to simplify Boolean expressions by grouping adjacent 1s in a Gray-coded grid.</p>
+
+  <div class="u5tab-bar">
+    <button class="u5tab on" onclick="tab4('km','theory',this)">Theory</button>
+    <button class="u5tab" onclick="tab4('km','sim',this)">Interactive K-Map</button>
+    <button class="u5tab" onclick="tab4('km','quiz',this)">Quiz</button>
+  </div>
+
+  <div id="km-theory" class="u5tb on">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-cyan-400">Rules for K-Map Grouping</h4>
+        <ul class="text-sm text-slate-300 space-y-2 list-disc pl-4">
+          <li>Group only <strong class="text-white">1s</strong> (not 0s)</li>
+          <li>Group sizes must be powers of 2: <strong class="text-white">1, 2, 4, 8, 16</strong></li>
+          <li>Groups can wrap around edges (it's a torus!)</li>
+          <li>Larger groups = simpler expression</li>
+          <li>Each 1 must be covered by at least one group</li>
+          <li>Each group → one product term (remove varying variables)</li>
+        </ul>
+        <div class="note-box">Always use the LARGEST possible groups first!</div>
+      </div>
+      <div class="circuit-card space-y-3">
+        <h4 class="font-bold text-sm text-purple-400">4-Variable K-Map Layout</h4>
+        <p class="text-xs text-slate-400 mb-2">Rows: CD in Gray order (00,01,11,10) · Cols: AB in Gray order</p>
+        <div class="step-card text-xs leading-7">CD\AB &nbsp;| 00 | 01 | 11 | 10<br>──────┼────┼────┼────┼───<br>00 &nbsp;&nbsp;&nbsp; | m0 | m4 |m12 | m8<br>01 &nbsp;&nbsp;&nbsp; | m1 | m5 |m13 | m9<br>11 &nbsp;&nbsp;&nbsp; | m3 | m7 |m15 |m11<br>10 &nbsp;&nbsp;&nbsp; | m2 | m6 |m14 |m10</div>
+        <div class="warn-box">⚠️ Columns are in GRAY order (00→01→11→10), NOT binary order!</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="km-sim" class="u5tb">
+    <div class="circuit-card space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h4 class="font-bold text-sm text-slate-200">⚡ Interactive K-Map Solver</h4>
+        <div class="flex flex-wrap gap-2">
+          <select id="kmVars" class="sim-in w-auto text-sm" onchange="buildKmap()">
+            <option value="2">2 Variables (A,B)</option>
+            <option value="3">3 Variables (A,B,C)</option>
+            <option value="4" selected>4 Variables (A,B,C,D)</option>
+          </select>
+          <button class="sim-btn-ref red" onclick="clearKmap()">Clear</button>
+          <button class="sim-btn-ref grn" onclick="solveKmap()">Solve →</button>
+        </div>
+      </div>
+      <p class="text-slate-400 text-xs">👆 Click cells to toggle 0/1. Press Solve to get the simplified Boolean expression.</p>
+      <div id="kmContainer" class="overflow-x-auto flex justify-center"></div>
+      <div id="kmResult" class="hidden space-y-3">
+        <div class="res-box"><span class="text-xs text-slate-400 mr-2">Simplified Expression:</span><span class="font-mono font-bold text-green-400 text-xl" id="kmExpr">—</span></div>
+        <div class="step-card text-sm" id="kmSteps"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="km-quiz" class="u5tb">
+    <div class="circuit-card space-y-3">
+      <h4 class="font-bold text-sm text-slate-200">🎯 Quick Quiz</h4>
+      <p class="text-slate-300 font-medium">In K-Map simplification, group sizes must be a power of?</p>
+      <div class="grid grid-cols-2 gap-2" id="kmQ">
+        <button class="qck-opt" onclick="checkQ(this,'kmQ','2')">A) 2</button>
+        <button class="qck-opt" onclick="checkQ(this,'kmQ','2')">B) 3</button>
+        <button class="qck-opt" onclick="checkQ(this,'kmQ','2')">C) 5</button>
+        <button class="qck-opt" onclick="checkQ(this,'kmQ','2')">D) 10</button>
+      </div>
+      <div id="kmQfb" class="sim-explain hidden"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="text-center text-slate-600 dark:text-slate-700 text-xs py-6 border-t border-slate-200 dark:border-slate-800 mt-8">
+  Unit IV — Number System &amp; Logic Gates · Digital Electronics · <a href="index.html" class="text-cyan-500 hover:underline">Circuit Lab</a>
+</footer>
+<script>
+// ══ Tab system (same pattern as unit5) ══
+function tab4(prefix,id,btn){
+  document.querySelectorAll('[id^="'+prefix+'-"]').forEach(el=>el.classList.remove('on'));
+  document.getElementById(prefix+'-'+id).classList.add('on');
+  btn.closest('.u5tab-bar').querySelectorAll('.u5tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ══ Number System Converter ══
+function doConvert(){
+  const v=document.getElementById('nsIn').value.trim();
+  const from=parseInt(document.getElementById('nsFrom').value);
+  if(!v){['nsDec','nsBin','nsOct','nsHex'].forEach(i=>{document.getElementById(i).textContent='—';});return;}
+  let dec=parseInt(v,from);
+  if(isNaN(dec)||dec<0){['nsDec','nsBin','nsOct','nsHex'].forEach(i=>{document.getElementById(i).textContent='Invalid';});return;}
+  document.getElementById('nsDec').textContent=dec;
+  document.getElementById('nsBin').textContent=dec.toString(2);
+  document.getElementById('nsOct').textContent=dec.toString(8);
+  document.getElementById('nsHex').textContent=dec.toString(16).toUpperCase();
+  let steps='Steps:\n';
+  if(from!==10) steps+=`Input: ${v}₍${from}₎ → Decimal: ${dec}\n\n`;
+  if(dec>0){
+    let t=dec,r=[];
+    steps+='Decimal → Binary (÷2):\n';
+    while(t>0){r.unshift(t%2);steps+=`  ${t} ÷ 2 = ${Math.floor(t/2)} rem ${t%2}\n`;t=Math.floor(t/2);}
+    steps+=`Binary = ${r.join('')}\n`;
+  }
+  const s=document.getElementById('nsSteps');
+  s.textContent=steps; s.classList.remove('hidden');
+}
+
+// ══ Binary Arithmetic ══
+function doBinCalc(){
+  const a=document.getElementById('baA').value.trim();
+  const b=document.getElementById('baB').value.trim();
+  const op=document.getElementById('baOp').value;
+  const box=document.getElementById('baResult');
+  if(!/^[01]+$/.test(a)||!/^[01]+$/.test(b)){
+    box.innerHTML='<span class="text-red-400">⚠ Please enter valid binary numbers (0s and 1s only)</span>';
+    box.classList.remove('hidden'); return;
+  }
+  const A=parseInt(a,2),B=parseInt(b,2);
+  let html='';
+  if(op==='add'){
+    const sum=A+B;
+    html=`<div class="font-mono mb-2">&nbsp;&nbsp;${a}<br>+ ${b}<br><span style="border-top:1px solid #4b5563;display:block;margin-top:4px">${sum.toString(2)}</span></div>
+    <p class="text-green-400 font-bold">Result: ${sum.toString(2)} <span class="text-slate-400 font-normal text-sm">(= ${sum} in decimal)</span></p>`;
+  } else {
+    const bits=Math.max(a.length,b.length);
+    const mask=(1<<bits)-1;
+    const c1=(~B)&mask;
+    const c2=(c1+1)&mask;
+    const sum=A+c2;
+    const carry=sum>>bits;
+    const result=sum&mask;
+    html=`<div class="font-mono mb-2 space-y-1">
+      <div>B = ${b.padStart(bits,'0')}</div>
+      <div>1's comp of B = ${c1.toString(2).padStart(bits,'0')}</div>
+      <div>2's comp of B = ${c2.toString(2).padStart(bits,'0')}</div>
+      <div class="mt-2">&nbsp;&nbsp;${a.padStart(bits,'0')}</div>
+      <div>+ ${c2.toString(2).padStart(bits,'0')}</div>
+      <div style="border-top:1px solid #4b5563;margin-top:4px">${carry?'1 ':''}${result.toString(2).padStart(bits,'0')}</div>
+    </div>
+    <p class="text-purple-400 font-bold">${carry?'Carry out → discard → ':''}Result: ${result.toString(2).padStart(bits,'0')} <span class="text-slate-400 font-normal text-sm">(= ${A-B} in decimal)</span></p>`;
+  }
+  box.innerHTML=html; box.classList.remove('hidden');
+}
+
+// ══ Code Converter ══
+function binToGray(b){let g=b[0];for(let i=1;i<b.length;i++)g+=(parseInt(b[i-1])^parseInt(b[i])).toString();return g;}
+function doCodeConv(){
+  const v=document.getElementById('cdIn').value.trim();
+  if(!v||isNaN(v)||parseInt(v)<0||parseInt(v)>99) return;
+  const d=parseInt(v);
+  const bcd=d.toString().split('').map(c=>parseInt(c).toString(2).padStart(4,'0')).join(' ');
+  const xs3=d.toString().split('').map(c=>(parseInt(c)+3).toString(2).padStart(4,'0')).join(' ');
+  const bin=d.toString(2).padStart(7,'0');
+  const gray=binToGray(bin);
+  document.getElementById('cdTbody').innerHTML=`
+    <tr><td class="text-cyan-400">BCD</td><td class="font-mono">${bcd}</td><td class="text-slate-400 text-xs">4 bits per decimal digit</td></tr>
+    <tr><td class="text-purple-400">Excess-3</td><td class="font-mono">${xs3}</td><td class="text-slate-400 text-xs">BCD + 3 per digit</td></tr>
+    <tr><td class="text-green-400">Gray Code</td><td class="font-mono">${gray}</td><td class="text-slate-400 text-xs">XOR adjacent binary bits</td></tr>
+    <tr><td class="text-amber-400">Binary</td><td class="font-mono">${bin}</td><td class="text-slate-400 text-xs">Standard binary</td></tr>`;
+  document.getElementById('cdResult').classList.remove('hidden');
+}
+
+// Build code comparison table 0-9
+(function(){
+  const tb=document.getElementById('cdCompTbody');
+  if(!tb) return;
+  for(let i=0;i<=9;i++){
+    const bin=i.toString(2).padStart(4,'0');
+    const gray=binToGray(bin);
+    tb.innerHTML+=`<tr><td>${i}</td><td class="font-mono">${bin}</td><td class="font-mono text-cyan-400">${bin}</td><td class="font-mono text-purple-400">${(i+3).toString(2).padStart(4,'0')}</td><td class="font-mono text-green-400">${gray}</td></tr>`;
+  }
+})();
+
+// ══ Complement Calculator ══
+function doCompCalc(){
+  const v=document.getElementById('cpIn').value.trim();
+  if(!/^[01]+$/.test(v)) return;
+  const ones=v.split('').map(b=>b==='0'?'1':'0').join('');
+  let arr=ones.split('').reverse(),carry=1;
+  for(let i=0;i<arr.length;i++){let s=parseInt(arr[i])+carry;arr[i]=s%2;carry=Math.floor(s/2);}
+  const twos=arr.reverse().join('');
+  document.getElementById('cpOrig').textContent=v;
+  document.getElementById('cp1s').textContent=ones;
+  document.getElementById('cp2s').textContent=twos;
+  document.getElementById('cpSteps').textContent=
+    `Original:       ${v}\n1's complement: ${ones}  ← flip every bit\nAdd 1:          ${ones} + 1\n──────────────────────\n2's complement: ${twos}`;
+  document.getElementById('cpResult').classList.remove('hidden');
+}
+
+// ══ Logic Gates ══
+const GATES=[
+  {name:'AND',expr:'A · B',fn:(a,b)=>a&b,n:2,color:'#4f8ef7',
+   path:'M32,14 L32,66 Q80,66 80,40 Q80,14 32,14Z',bub:false,ox:86},
+  {name:'OR', expr:'A + B',fn:(a,b)=>a|b,n:2,color:'#22c55e',
+   path:'M22,14 Q48,14 72,40 Q48,66 22,66 Q37,40 22,14Z',bub:false,ox:78},
+  {name:'NOT',expr:"A'",fn:(a)=>a?0:1,n:1,color:'#f59e0b',
+   path:'M22,18 L22,62 L72,40Z',bub:true,bubx:79,buby:40,ox:90},
+  {name:'NAND',expr:"(A·B)'",fn:(a,b)=>a&b?0:1,n:2,color:'#ef4444',
+   path:'M32,14 L32,66 Q80,66 80,40 Q80,14 32,14Z',bub:true,bubx:87,buby:40,ox:98},
+  {name:'NOR', expr:"(A+B)'",fn:(a,b)=>a|b?0:1,n:2,color:'#a855f7',
+   path:'M22,14 Q48,14 72,40 Q48,66 22,66 Q37,40 22,14Z',bub:true,bubx:80,buby:40,ox:91},
+  {name:'XOR', expr:'A ⊕ B',fn:(a,b)=>a^b,n:2,color:'#ec4899',
+   path:'M22,14 Q48,14 72,40 Q48,66 22,66 Q37,40 22,14Z M17,14 Q32,40 17,66',bub:false,ox:78},
+  {name:'XNOR',expr:"(A⊕B)'",fn:(a,b)=>(a^b)?0:1,n:2,color:'#8b5cf6',
+   path:'M22,14 Q48,14 72,40 Q48,66 22,66 Q37,40 22,14Z M17,14 Q32,40 17,66',bub:true,bubx:80,buby:40,ox:91},
+];
+const gS={};
+GATES.forEach(g=>{gS[g.name]={a:0,b:0};});
+
+function gateOut(g,s){return g.n===1?g.fn(s.a):g.fn(s.a,s.b);}
+function ttRows(g){
+  const rows=g.n===1?[[0],[1]]:[[0,0],[0,1],[1,0],[1,1]];
+  return rows.map(r=>{
+    const out=g.n===1?g.fn(r[0]):g.fn(r[0],r[1]);
+    return `<tr><td>${r[0]}</td>${g.n>1?`<td>${r[1]}</td>`:''}<td class="${out?'set':'res'}">${out}</td></tr>`;
+  }).join('');
+}
+
+function renderGates(){
+  const grid=document.getElementById('gateGrid');
+  if(!grid) return;
+  grid.innerHTML=GATES.map(g=>{
+    const s=gS[g.name]; const out=gateOut(g,s);
+    const hasBub=g.bub;
+    return `<div class="circuit-card space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold" style="color:${g.color}">${g.name} Gate</h3>
+        <span class="eq-box text-sm" style="margin:0">${g.expr}</span>
+      </div>
+      <div class="gate-wrap">
+        <svg viewBox="0 0 140 80" width="240" height="130" style="overflow:visible">
+          ${g.n===1
+            ?`<line x1="0" y1="40" x2="22" y2="40" class="wire ${s.a?'hi':''}" />`
+            :`<line x1="0" y1="28" x2="32" y2="28" class="wire ${s.a?'hi':''}"/>
+              <line x1="0" y1="52" x2="32" y2="52" class="wire ${s.b?'hi':''}"/>`}
+          <path d="${g.path}" class="g-body" stroke="${g.color}"/>
+          ${hasBub?`<circle cx="${g.bubx}" cy="${g.buby}" r="6" class="g-bubble" stroke="${g.color}"/>`:''}
+          <line x1="${g.ox}" y1="40" x2="140" y2="40" class="wire ${out?'hi':''}"/>
+          ${g.n===1
+            ?`<text x="2" y="36" font-size="9" fill="${s.a?'#22c55e':'#64748b'}">A=${s.a}</text>`
+            :`<text x="2" y="24" font-size="9" fill="${s.a?'#22c55e':'#64748b'}">A=${s.a}</text>
+              <text x="2" y="50" font-size="9" fill="${s.b?'#22c55e':'#64748b'}">B=${s.b}</text>`}
+          <text x="${g.ox+2}" y="36" font-size="9" fill="${out?'#22c55e':'#64748b'}">F=${out}</text>
+          <text x="45" y="44" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">${g.name}</text>
+        </svg>
+      </div>
+      <div class="flex justify-center gap-4 items-center">
+        <div class="text-center"><div class="text-xs text-slate-500 mb-1">A</div>
+          <button class="io-btn ${s.a?'hi':''}" onclick="togGate('${g.name}','a')">${s.a}</button></div>
+        ${g.n>1?`<div class="text-center"><div class="text-xs text-slate-500 mb-1">B</div>
+          <button class="io-btn ${s.b?'hi':''}" onclick="togGate('${g.name}','b')">${s.b}</button></div>`:''}
+        <div class="text-center"><div class="text-xs text-slate-500 mb-1">Output F</div>
+          <div class="out-led ${out?'hi':''}">${out}</div></div>
+      </div>
+      <table class="tt"><thead><tr><th>A</th>${g.n>1?'<th>B</th>':''}<th>F</th></tr></thead><tbody>${ttRows(g)}</tbody></table>
+    </div>`;
+  }).join('');
+}
+function togGate(name,inp){gS[name][inp]=gS[name][inp]?0:1;renderGates();}
+
+// ══ SOP/POS ══
+const spF=[0,0,0,0];
+(function(){
+  const tb=document.getElementById('spTbody');
+  if(!tb) return;
+  [['0','0'],['0','1'],['1','0'],['1','1']].forEach((r,i)=>{
+    tb.innerHTML+=`<tr><td>m${i}</td><td>${r[0]}</td><td>${r[1]}</td>
+      <td><button class="io-btn ${spF[i]?'hi':''}" id="spBtn${i}" onclick="togSp(${i})">${spF[i]}</button></td></tr>`;
+  });
+})();
+function togSp(i){spF[i]=spF[i]?0:1;const b=document.getElementById('spBtn'+i);if(b){b.className='io-btn '+(spF[i]?'hi':'');b.textContent=spF[i];}}
+function doSopPos(){
+  const mt=[["A'B'","A+B"],["A'B","A+B'"],["AB'","A'+B"],["AB","A'+B'"]];
+  const sop=spF.map((v,i)=>v?mt[i][0]:null).filter(Boolean);
+  const pos=spF.map((v,i)=>!v?`(${mt[i][1]})`:null).filter(Boolean);
+  document.getElementById('spSOP').textContent=sop.length?sop.join(' + '):'0';
+  document.getElementById('spPOS').textContent=pos.length?pos.join(' · '):'1';
+  const ones=spF.map((v,i)=>v?`m${i}`:null).filter(Boolean);
+  const zeros=spF.map((v,i)=>!v?`M${i}`:null).filter(Boolean);
+  document.getElementById('spSteps').textContent=
+    `Minterms (F=1): Σm(${ones.length?ones.join(','):'none'})\nMaxterms (F=0): ΠM(${zeros.length?zeros.join(','):'none'})\n\nSOP: OR all minterm AND-expressions\nPOS: AND all maxterm OR-expressions`;
+  document.getElementById('spResult').classList.remove('hidden');
+}
+
+// ══ K-Map ══
+let kmCells=new Array(16).fill(0);
+const km4order=[[0,4,12,8],[1,5,13,9],[3,7,15,11],[2,6,14,10]];
+
+function buildKmap(){
+  const vars=parseInt(document.getElementById('kmVars').value);
+  const cont=document.getElementById('kmContainer');
+  document.getElementById('kmResult').classList.add('hidden');
+  kmCells=new Array(Math.pow(2,vars)).fill(0);
+  let html='<table style="border-collapse:separate;border-spacing:4px">';
+  if(vars===4){
+    html+=`<tr><th class="text-slate-500 text-xs p-2" style="min-width:72px">CD\\AB</th>`;
+    ['00','01','11','10'].forEach(v=>html+=`<th class="text-cyan-400 text-xs p-2" style="min-width:56px">AB=${v}</th>`);
+    html+='</tr>';
+    ['00','01','11','10'].forEach((cd,r)=>{
+      html+=`<tr><th class="text-purple-400 text-xs p-2">CD=${cd}</th>`;
+      [0,1,3,2].forEach((ci)=>{
+        const m=km4order[r][ci];
+        html+=`<td><div class="kmap-cell" id="km${m}" onclick="togKm(${m})">0</div></td>`;
+      });
+      html+='</tr>';
+    });
+  } else if(vars===2){
+    html+=`<tr><th class="text-slate-500 text-xs p-2">A\\B</th><th class="text-cyan-400 text-xs p-2">B=0</th><th class="text-cyan-400 text-xs p-2">B=1</th></tr>`;
+    [[0,2],[1,3]].forEach((row,r)=>{
+      html+=`<tr><th class="text-purple-400 text-xs p-2">A=${r}</th>`;
+      row.forEach(m=>html+=`<td><div class="kmap-cell" id="km${m}" onclick="togKm(${m})">0</div></td>`);
+      html+='</tr>';
+    });
+  } else {
+    html+=`<tr><th class="text-slate-500 text-xs p-2">BC\\A</th><th class="text-cyan-400 text-xs p-2">A=0</th><th class="text-cyan-400 text-xs p-2">A=1</th></tr>`;
+    [[0,4],[1,5],[3,7],[2,6]].forEach((row,r)=>{
+      const bc=['00','01','11','10'][r];
+      html+=`<tr><th class="text-purple-400 text-xs p-2">BC=${bc}</th>`;
+      row.forEach(m=>html+=`<td><div class="kmap-cell" id="km${m}" onclick="togKm(${m})">0</div></td>`);
+      html+='</tr>';
+    });
+  }
+  html+='</table>';
+  cont.innerHTML=html;
+}
+function togKm(m){
+  kmCells[m]=kmCells[m]?0:1;
+  const el=document.getElementById('km'+m);
+  if(el){el.textContent=kmCells[m];el.classList.toggle('on',!!kmCells[m]);}
+}
+function clearKmap(){
+  kmCells.fill(0);
+  document.querySelectorAll('[id^="km"]').forEach(el=>{el.textContent='0';el.classList.remove('on');});
+  document.getElementById('kmResult').classList.add('hidden');
+}
+function cntBits(n){let c=0;while(n){c+=n&1;n>>=1;}return c;}
+function solveKmap(){
+  const ones=kmCells.map((v,i)=>v?i:null).filter(x=>x!==null);
+  const vars=parseInt(document.getElementById('kmVars').value);
+  const vn=vars===2?['A','B']:vars===3?['A','B','C']:['A','B','C','D'];
+  if(!ones.length){document.getElementById('kmExpr').textContent='F = 0';document.getElementById('kmSteps').textContent='All cells are 0 → Output is always LOW.';document.getElementById('kmResult').classList.remove('hidden');return;}
+  if(ones.length===Math.pow(2,vars)){document.getElementById('kmExpr').textContent='F = 1';document.getElementById('kmSteps').textContent='All cells are 1 → Output is always HIGH.';document.getElementById('kmResult').classList.remove('hidden');return;}
+  const used=new Set(),groups=[];
+  // Try quads
+  for(let dc=0;dc<(1<<vars);dc++){
+    if(cntBits(dc)!==2) continue;
+    const grp=ones.filter(v=>(v&dc)===0||(v&dc)===dc);
+    if(grp.length===4&&grp.every(v=>ones.includes(v))){
+      groups.push({cells:grp,dc});grp.forEach(v=>used.add(v));
+    }
+  }
+  // Try pairs
+  for(let dc=0;dc<(1<<vars);dc++){
+    if(cntBits(dc)!==1) continue;
+    for(const base of ones){
+      if(used.has(base)) continue;
+      const partner=base^dc;
+      if(ones.includes(partner)&&!used.has(partner)){
+        groups.push({cells:[base,partner],dc});used.add(base);used.add(partner);
+      }
+    }
+  }
+  // Singles
+  ones.filter(v=>!used.has(v)).forEach(v=>groups.push({cells:[v],dc:0}));
+  const terms=groups.map(g=>{
+    const rep=g.cells[0];
+    return vn.map((v,i)=>{
+      const bit=1<<(vars-1-i);
+      if(g.dc&bit) return null;
+      return (rep&bit)?v:v+"'";
+    }).filter(Boolean).join('')||'1';
+  });
+  const expr='F = '+terms.join(' + ');
+  document.getElementById('kmExpr').textContent=expr;
+  document.getElementById('kmSteps').textContent=`Minterms: Σm(${ones.join(',')})\nGroups found: ${groups.length}\n${expr}`;
+  document.getElementById('kmResult').classList.remove('hidden');
+}
+
+// ══ Quiz helper ══
+function checkQ(btn,qid,correct){
+  const cont=document.getElementById(qid);
+  if(cont.dataset.done) return;
+  cont.dataset.done='1';
+  const text=btn.textContent.split(') ')[1];
+  const isRight=text===correct;
+  cont.querySelectorAll('.qck-opt').forEach(b=>{
+    const t=b.textContent.split(') ')[1];
+    b.classList.add(t===correct?'correct':'wrong');
+  });
+  const fb=document.getElementById(qid+'fb');
+  if(fb){fb.textContent=isRight?'✅ Correct! Well done.':'❌ Incorrect. The correct answer is highlighted in green.';fb.classList.remove('hidden');}
+}
+
+// ══ Init ══
+renderGates();
+buildKmap();
+</script>
+</body>
+</html>
